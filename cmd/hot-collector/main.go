@@ -7,6 +7,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/baidu"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
 	"github.com/chamzzzzzz/hot/crawler/toutiao"
+	"github.com/chamzzzzzz/hot/crawler/v2ex"
 	"github.com/chamzzzzzz/hot/crawler/weibo"
 	"github.com/chamzzzzzz/hot/crawler/zhihu"
 	"github.com/robfig/cron/v3"
@@ -40,6 +41,11 @@ func (hc *HotCollector) Start() error {
 		return fmt.Errorf("missing env HOT_COLLECT_WEIBO_COOKIE")
 	}
 
+	proxy := os.Getenv("HOT_COLLECT_V2EX_PROXY")
+	if proxy == "" {
+		return fmt.Errorf("missing env HOT_COLLECT_V2EX_PROXY")
+	}
+
 	hc.archiver = &database.Archiver{
 		DriverName:     driverName,
 		DataSourceName: dataSourceName,
@@ -50,6 +56,7 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &toutiao.Crawler{})
 	hc.crawlers = append(hc.crawlers, &weibo.Crawler{cookie})
 	hc.crawlers = append(hc.crawlers, &zhihu.Crawler{})
+	hc.crawlers = append(hc.crawlers, &v2ex.Crawler{proxy})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
