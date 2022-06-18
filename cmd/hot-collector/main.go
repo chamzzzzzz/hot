@@ -7,6 +7,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/baidu"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
 	"github.com/chamzzzzzz/hot/crawler/github"
+	"github.com/chamzzzzzz/hot/crawler/ithome"
 	"github.com/chamzzzzzz/hot/crawler/tieba"
 	"github.com/chamzzzzzz/hot/crawler/toutiao"
 	"github.com/chamzzzzzz/hot/crawler/v2ex"
@@ -61,6 +62,8 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &v2ex.Crawler{proxy})
 	hc.crawlers = append(hc.crawlers, &tieba.Crawler{})
 	hc.crawlers = append(hc.crawlers, &github.Crawler{proxy})
+	hc.crawlers = append(hc.crawlers, &ithome.Crawler{})
+	hc.crawlers = append(hc.crawlers, &ithome.Crawler{ithome.BoardGame})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
