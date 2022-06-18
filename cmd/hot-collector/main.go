@@ -6,6 +6,7 @@ import (
 	"github.com/chamzzzzzz/hot/archiver/database"
 	"github.com/chamzzzzzz/hot/crawler/baidu"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
+	"github.com/chamzzzzzz/hot/crawler/tieba"
 	"github.com/chamzzzzzz/hot/crawler/toutiao"
 	"github.com/chamzzzzzz/hot/crawler/v2ex"
 	"github.com/chamzzzzzz/hot/crawler/weibo"
@@ -57,6 +58,7 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &weibo.Crawler{cookie})
 	hc.crawlers = append(hc.crawlers, &zhihu.Crawler{})
 	hc.crawlers = append(hc.crawlers, &v2ex.Crawler{proxy})
+	hc.crawlers = append(hc.crawlers, &tieba.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
