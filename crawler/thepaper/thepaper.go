@@ -1,7 +1,8 @@
 package thepaper
 
 import (
-	"github.com/anaskhan96/soup"
+	"encoding/json"
+	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +18,7 @@ func (c *Crawler) Name() string {
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.thepaper.cn", nil)
+	req, err := http.NewRequest("GET", "https://www.thepaper.cn/contentapi/wwwIndex/rightSidebar", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -29,27 +30,34 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
-	if dom.Error != nil {
-		return nil, dom.Error
+	bodyJson := &bodyJson{}
+	if err := json.Unmarshal(body, bodyJson); err != nil {
+		return nil, err
+	} else if bodyJson.ResultCode != 1 {
+		return nil, fmt.Errorf("body result code: %d", bodyJson.ResultCode)
 	}
 
 	board := hot.NewBoard(c.Name())
 	date := time.Now()
 
-	ul := dom.FindStrict("ul", "id", "listhot0")
-	if ul.Error != nil {
-		return nil, ul.Error
-	}
-	for _, a := range ul.FindAllStrict("a") {
-		title := a.Text()
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+	for _, news := range bodyJson.Data.HotNews {
+		board.Append(news.Name, fmt.Sprintf("https://www.thepaper.cn/newsDetail_forward_%s", news.ContID), date)
 	}
 	return board, nil
+}
+
+type bodyJson struct {
+	ResultCode int    `json:"resultCode"`
+	ResultMsg  string `json:"resultMsg"`
+	Data       struct {
+		HotNews []struct {
+			ContID string `json:"contId"`
+			Name   string `json:"name"`
+		} `json:"hotNews"`
+	} `json:"data"`
 }
