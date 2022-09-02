@@ -7,38 +7,50 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/baidu"
 	"github.com/chamzzzzzz/hot/crawler/bilibili"
 	"github.com/chamzzzzzz/hot/crawler/bjnews"
+	"github.com/chamzzzzzz/hot/crawler/btc8"
+	"github.com/chamzzzzzz/hot/crawler/chinanews"
 	"github.com/chamzzzzzz/hot/crawler/chinaz"
+	"github.com/chamzzzzzz/hot/crawler/chiphell"
 	"github.com/chamzzzzzz/hot/crawler/cls"
 	"github.com/chamzzzzzz/hot/crawler/cnbeta"
 	"github.com/chamzzzzzz/hot/crawler/cnblogs"
+	"github.com/chamzzzzzz/hot/crawler/cninfo"
 	"github.com/chamzzzzzz/hot/crawler/csdn"
 	"github.com/chamzzzzzz/hot/crawler/cto51"
 	"github.com/chamzzzzzz/hot/crawler/daniu"
 	"github.com/chamzzzzzz/hot/crawler/donews"
+	"github.com/chamzzzzzz/hot/crawler/dongchedi"
 	"github.com/chamzzzzzz/hot/crawler/douban"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
 	"github.com/chamzzzzzz/hot/crawler/eastmoney"
 	"github.com/chamzzzzzz/hot/crawler/gameres"
+	"github.com/chamzzzzzz/hot/crawler/gelonghui"
 	"github.com/chamzzzzzz/hot/crawler/gitchat"
 	"github.com/chamzzzzzz/hot/crawler/github"
 	"github.com/chamzzzzzz/hot/crawler/globaltimes"
 	"github.com/chamzzzzzz/hot/crawler/haokan"
+	"github.com/chamzzzzzz/hot/crawler/hibor"
 	"github.com/chamzzzzzz/hot/crawler/hupu"
 	"github.com/chamzzzzzz/hot/crawler/ifeng"
 	"github.com/chamzzzzzz/hot/crawler/infoq"
 	"github.com/chamzzzzzz/hot/crawler/investing"
 	"github.com/chamzzzzzz/hot/crawler/ithome"
 	"github.com/chamzzzzzz/hot/crawler/jin10"
+	"github.com/chamzzzzzz/hot/crawler/jinse"
 	"github.com/chamzzzzzz/hot/crawler/jisilu"
 	"github.com/chamzzzzzz/hot/crawler/jqka10"
 	"github.com/chamzzzzzz/hot/crawler/kanxue"
 	"github.com/chamzzzzzz/hot/crawler/kr36"
 	"github.com/chamzzzzzz/hot/crawler/kuaishou"
+	"github.com/chamzzzzzz/hot/crawler/leikeji"
 	"github.com/chamzzzzzz/hot/crawler/mydrivers"
 	"github.com/chamzzzzzz/hot/crawler/netease"
 	"github.com/chamzzzzzz/hot/crawler/nowcoder"
+	"github.com/chamzzzzzz/hot/crawler/odaily"
 	"github.com/chamzzzzzz/hot/crawler/oschina"
+	"github.com/chamzzzzzz/hot/crawler/panews"
 	"github.com/chamzzzzzz/hot/crawler/pojie52"
+	"github.com/chamzzzzzz/hot/crawler/readhub"
 	"github.com/chamzzzzzz/hot/crawler/rfa"
 	"github.com/chamzzzzzz/hot/crawler/so360"
 	"github.com/chamzzzzzz/hot/crawler/sogou"
@@ -55,6 +67,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/wsj"
 	"github.com/chamzzzzzz/hot/crawler/xueqiu"
 	"github.com/chamzzzzzz/hot/crawler/yystv"
+	"github.com/chamzzzzzz/hot/crawler/zhiguf"
 	"github.com/chamzzzzzz/hot/crawler/zhihu"
 	"github.com/robfig/cron/v3"
 	"log"
@@ -159,6 +172,19 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &cnblogs.Crawler{})
 	hc.crawlers = append(hc.crawlers, &jisilu.Crawler{})
 	hc.crawlers = append(hc.crawlers, &mydrivers.Crawler{})
+	hc.crawlers = append(hc.crawlers, &odaily.Crawler{})
+	hc.crawlers = append(hc.crawlers, &readhub.Crawler{})
+	hc.crawlers = append(hc.crawlers, &chinanews.Crawler{})
+	hc.crawlers = append(hc.crawlers, &panews.Crawler{})
+	hc.crawlers = append(hc.crawlers, &zhiguf.Crawler{})
+	hc.crawlers = append(hc.crawlers, &btc8.Crawler{})
+	hc.crawlers = append(hc.crawlers, &jinse.Crawler{})
+	hc.crawlers = append(hc.crawlers, &dongchedi.Crawler{})
+	hc.crawlers = append(hc.crawlers, &leikeji.Crawler{})
+	hc.crawlers = append(hc.crawlers, &chiphell.Crawler{})
+	hc.crawlers = append(hc.crawlers, &cninfo.Crawler{})
+	hc.crawlers = append(hc.crawlers, &hibor.Crawler{})
+	hc.crawlers = append(hc.crawlers, &gelonghui.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
