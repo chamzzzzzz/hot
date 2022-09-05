@@ -61,6 +61,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/sogou"
 	"github.com/chamzzzzzz/hot/crawler/sohu"
 	"github.com/chamzzzzzz/hot/crawler/solidot"
+	"github.com/chamzzzzzz/hot/crawler/sspai"
 	"github.com/chamzzzzzz/hot/crawler/techweb"
 	"github.com/chamzzzzzz/hot/crawler/thecover"
 	"github.com/chamzzzzzz/hot/crawler/thepaper"
@@ -199,6 +200,7 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &gamersky.Crawler{})
 	hc.crawlers = append(hc.crawlers, &solidot.Crawler{})
 	hc.crawlers = append(hc.crawlers, &pearvideo.Crawler{})
+	hc.crawlers = append(hc.crawlers, &sspai.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
