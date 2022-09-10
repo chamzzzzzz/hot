@@ -18,7 +18,7 @@ func (c *Crawler) Name() string {
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.gamersky.com/news/", nil)
+	req, err := http.NewRequest("GET", "https://www.yiche.com", nil)
 	if err != nil {
 		return nil, err
 	}
