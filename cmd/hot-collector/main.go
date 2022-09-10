@@ -25,6 +25,8 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/douban"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
 	"github.com/chamzzzzzz/hot/crawler/eastmoney"
+	"github.com/chamzzzzzz/hot/crawler/ft"
+	"github.com/chamzzzzzz/hot/crawler/ftchinese"
 	"github.com/chamzzzzzz/hot/crawler/fxbaogao"
 	"github.com/chamzzzzzz/hot/crawler/gameres"
 	"github.com/chamzzzzzz/hot/crawler/gamersky"
@@ -69,6 +71,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/takungpao"
 	"github.com/chamzzzzzz/hot/crawler/techweb"
 	"github.com/chamzzzzzz/hot/crawler/thecover"
+	"github.com/chamzzzzzz/hot/crawler/theguardian"
 	"github.com/chamzzzzzz/hot/crawler/thepaper"
 	"github.com/chamzzzzzz/hot/crawler/tianya"
 	"github.com/chamzzzzzz/hot/crawler/tieba"
@@ -215,6 +218,9 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &dongqiudi.Crawler{})
 	hc.crawlers = append(hc.crawlers, &zaker.Crawler{})
 	hc.crawlers = append(hc.crawlers, &qqnews.Crawler{})
+	hc.crawlers = append(hc.crawlers, &ft.Crawler{proxy})
+	hc.crawlers = append(hc.crawlers, &ftchinese.Crawler{proxy})
+	hc.crawlers = append(hc.crawlers, &theguardian.Crawler{proxy})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
