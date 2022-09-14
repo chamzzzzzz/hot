@@ -42,6 +42,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/ifeng"
 	"github.com/chamzzzzzz/hot/crawler/infoq"
 	"github.com/chamzzzzzz/hot/crawler/investing"
+	"github.com/chamzzzzzz/hot/crawler/iresearch"
 	"github.com/chamzzzzzz/hot/crawler/ithome"
 	"github.com/chamzzzzzz/hot/crawler/jin10"
 	"github.com/chamzzzzzz/hot/crawler/jinse"
@@ -80,6 +81,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/toutiao"
 	"github.com/chamzzzzzz/hot/crawler/toutiaoio"
 	"github.com/chamzzzzzz/hot/crawler/v2ex"
+	"github.com/chamzzzzzz/hot/crawler/wallstreetcn"
 	"github.com/chamzzzzzz/hot/crawler/weibo"
 	"github.com/chamzzzzzz/hot/crawler/wsj"
 	"github.com/chamzzzzzz/hot/crawler/xueqiu"
@@ -223,6 +225,8 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &ftchinese.Crawler{proxy})
 	hc.crawlers = append(hc.crawlers, &theguardian.Crawler{proxy})
 	hc.crawlers = append(hc.crawlers, &futu.Crawler{})
+	hc.crawlers = append(hc.crawlers, &wallstreetcn.Crawler{})
+	hc.crawlers = append(hc.crawlers, &iresearch.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
