@@ -12,12 +12,15 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/chinanews"
 	"github.com/chamzzzzzz/hot/crawler/chinaz"
 	"github.com/chamzzzzzz/hot/crawler/chiphell"
+	"github.com/chamzzzzzz/hot/crawler/chunfengxing"
 	"github.com/chamzzzzzz/hot/crawler/cls"
 	"github.com/chamzzzzzz/hot/crawler/cnbeta"
 	"github.com/chamzzzzzz/hot/crawler/cnblogs"
 	"github.com/chamzzzzzz/hot/crawler/cninfo"
+	"github.com/chamzzzzzz/hot/crawler/credit51"
 	"github.com/chamzzzzzz/hot/crawler/csdn"
 	"github.com/chamzzzzzz/hot/crawler/cto51"
+	"github.com/chamzzzzzz/hot/crawler/cyzone"
 	"github.com/chamzzzzzz/hot/crawler/daniu"
 	"github.com/chamzzzzzz/hot/crawler/donews"
 	"github.com/chamzzzzzz/hot/crawler/dongchedi"
@@ -25,6 +28,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/douban"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
 	"github.com/chamzzzzzz/hot/crawler/eastmoney"
+	"github.com/chamzzzzzz/hot/crawler/eeo"
 	"github.com/chamzzzzzz/hot/crawler/ft"
 	"github.com/chamzzzzzz/hot/crawler/ftchinese"
 	"github.com/chamzzzzzz/hot/crawler/futu"
@@ -40,6 +44,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/hupu"
 	"github.com/chamzzzzzz/hot/crawler/huxiu"
 	"github.com/chamzzzzzz/hot/crawler/ifeng"
+	"github.com/chamzzzzzz/hot/crawler/igao7"
 	"github.com/chamzzzzzz/hot/crawler/infoq"
 	"github.com/chamzzzzzz/hot/crawler/investing"
 	"github.com/chamzzzzzz/hot/crawler/iresearch"
@@ -48,6 +53,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/jinse"
 	"github.com/chamzzzzzz/hot/crawler/jisilu"
 	"github.com/chamzzzzzz/hot/crawler/jqka10"
+	"github.com/chamzzzzzz/hot/crawler/jrj"
 	"github.com/chamzzzzzz/hot/crawler/kanxue"
 	"github.com/chamzzzzzz/hot/crawler/kr36"
 	"github.com/chamzzzzzz/hot/crawler/kuaishou"
@@ -63,8 +69,10 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/pearvideo"
 	"github.com/chamzzzzzz/hot/crawler/pojie52"
 	"github.com/chamzzzzzz/hot/crawler/qqnews"
+	"github.com/chamzzzzzz/hot/crawler/qqvideo"
 	"github.com/chamzzzzzz/hot/crawler/readhub"
 	"github.com/chamzzzzzz/hot/crawler/rfa"
+	"github.com/chamzzzzzz/hot/crawler/semiunion"
 	"github.com/chamzzzzzz/hot/crawler/so360"
 	"github.com/chamzzzzzz/hot/crawler/sogou"
 	"github.com/chamzzzzzz/hot/crawler/sohu"
@@ -88,6 +96,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/yiche"
 	"github.com/chamzzzzzz/hot/crawler/yystv"
 	"github.com/chamzzzzzz/hot/crawler/zaker"
+	"github.com/chamzzzzzz/hot/crawler/zaobao"
 	"github.com/chamzzzzzz/hot/crawler/zhiguf"
 	"github.com/chamzzzzzz/hot/crawler/zhihu"
 	"github.com/robfig/cron/v3"
@@ -227,6 +236,26 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &futu.Crawler{})
 	hc.crawlers = append(hc.crawlers, &wallstreetcn.Crawler{})
 	hc.crawlers = append(hc.crawlers, &iresearch.Crawler{})
+	hc.crawlers = append(hc.crawlers, &cyzone.Crawler{})
+	hc.crawlers = append(hc.crawlers, &zaobao.Crawler{})
+	hc.crawlers = append(hc.crawlers, &eeo.Crawler{})
+	hc.crawlers = append(hc.crawlers, &semiunion.Crawler{})
+	hc.crawlers = append(hc.crawlers, &igao7.Crawler{})
+	hc.crawlers = append(hc.crawlers, &chunfengxing.Crawler{})
+	hc.crawlers = append(hc.crawlers, &credit51.Crawler{})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.General})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.TV})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Variety})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Cartoon})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Child})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Movie})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Doco})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Games})
+	hc.crawlers = append(hc.crawlers, &qqvideo.Crawler{qqvideo.Music})
+	hc.crawlers = append(hc.crawlers, &jrj.Crawler{})
+	hc.crawlers = append(hc.crawlers, &jrj.Crawler{jrj.Tech})
+	hc.crawlers = append(hc.crawlers, &jrj.Crawler{jrj.House})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
