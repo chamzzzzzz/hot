@@ -165,8 +165,6 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &pojie52.Crawler{})
 	hc.crawlers = append(hc.crawlers, &daniu.Crawler{})
 	hc.crawlers = append(hc.crawlers, &sogou.Crawler{})
-	hc.crawlers = append(hc.crawlers, &sogou.Crawler{sogou.Weixin})
-	hc.crawlers = append(hc.crawlers, &sogou.Crawler{sogou.Baike})
 	hc.crawlers = append(hc.crawlers, &douban.Crawler{})
 	hc.crawlers = append(hc.crawlers, &douban.Crawler{douban.Movie})
 	hc.crawlers = append(hc.crawlers, &hupu.Crawler{})
