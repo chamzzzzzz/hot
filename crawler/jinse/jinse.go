@@ -21,11 +21,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 }
 
 func (c *Crawler) jinse_x_search() (*hot.Board, error) {
-	return c.jinseWithURL("https://newapi.jinse.cn/noah/v1/hot-search")
+	return c.jinseWithURL("https://newapi.jinse.com/noah/v1/hot-search")
 }
 
 func (c *Crawler) jinse_x_article() (*hot.Board, error) {
-	return c.jinseWithURL("https://newapi.jinse.cn/noah/v1/articles/hot?hour_diff=24")
+	return c.jinseWithURL("https://newapi.jinse.com/noah/v1/articles/hot?hour_diff=24")
 }
 
 func (c *Crawler) jinse() (*hot.Board, error) {
