@@ -1,6 +1,6 @@
 module github.com/chamzzzzzz/hot
 
-go 1.18
+go 1.19
 
 require (
 	github.com/anaskhan96/soup v1.2.5
