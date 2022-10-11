@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type Crawler struct {
@@ -30,25 +29,25 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.Find("div", "class", "hots-wrapper__bd")
 	if div.Error != nil {
 		return nil, div.Error
 	}
 	for _, a := range div.FindAllStrict("a") {
 		title := strings.TrimSpace(a.Text())
-		board.Append(title, "", date)
+		url := strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }

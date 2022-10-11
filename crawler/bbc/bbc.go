@@ -2,7 +2,6 @@ package bbc
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
@@ -41,33 +40,37 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(body, bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(data, body); err != nil {
 		return nil, err
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, record := range bodyJson.Records {
-		board.Append(fmt.Sprintf("%s | %s", record.Promo.Headlines.ShortHeadline, record.Promo.Summary), strings.Trim(record.Promo.ID, "urn:bbc:ares::asset:"), date)
+	for _, record := range body.Records {
+		title := strings.TrimSpace(record.Promo.Headlines.ShortHeadline)
+		summary := strings.TrimSpace(record.Promo.Summary)
+		url := "https://www.bbc.com/" + strings.TrimSpace(strings.Trim(record.Promo.ID, "urn:bbc:ares::asset:"))
+		date := time.UnixMilli(record.Promo.Timestamp)
+		board.Append3x1(title, summary, url, date)
 	}
 	return board, nil
 }
 
-type bodyJson struct {
+type body struct {
 	Records []struct {
 		Promo struct {
 			Headlines struct {
 				ShortHeadline string `json:"shortHeadline"`
 				Headline      string `json:"headline"`
 			} `json:"headlines"`
-			Summary string `json:"summary"`
-			ID      string `json:"id"`
+			Summary   string `json:"summary"`
+			Timestamp int64  `json:"timestamp"`
+			ID        string `json:"id"`
 		} `json:"promo,omitempty"`
 	} `json:"records"`
 }
