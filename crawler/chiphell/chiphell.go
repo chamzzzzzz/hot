@@ -46,7 +46,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	if div.Error != nil {
 		return nil, div.Error
 	}
-	for _, a := range div.FindAllStrict("a") {
+	for _, li := range div.FindAllStrict("li") {
+		a := li.Find("a")
+		if a.Error != nil {
+			return nil, a.Error
+		}
 		title := strings.TrimSpace(a.Attrs()["title"])
 		summary := a.Attrs()["href"]
 		board.Append(title, summary, date)
