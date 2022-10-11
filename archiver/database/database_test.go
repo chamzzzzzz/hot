@@ -16,12 +16,20 @@ func TestArchive(t *testing.T) {
 
 	board := hot.NewBoard("test")
 	for i := 0; i < 1000; i++ {
-		board.Append(fmt.Sprintf("Title_%d", i), fmt.Sprintf("Content_%d", i), time.Now())
+		board.Append(fmt.Sprintf("Title_%d", i), fmt.Sprintf("Summary_%d", i), time.Now())
+		board.Append5(fmt.Sprintf("Title_%d", i), fmt.Sprintf("Summary_%d", i), fmt.Sprintf("URL_%d", i), fmt.Sprintf("Catagory_%d", i), time.Now())
+		board.Append6(fmt.Sprintf("Title_%d", i), fmt.Sprintf("Summary_%d", i), fmt.Sprintf("URL_%d", i), fmt.Sprintf("Catagory_Extra_%d", i), fmt.Sprintf("Extra_%d", i), time.Now())
 	}
 
 	if archived, err := a.Archive(board); err != nil {
 		t.Error(err)
 	} else {
 		t.Logf("archived=%d\n", archived)
+	}
+
+	if archived, err := a.Archive(board); err != nil {
+		t.Error(err)
+	} else {
+		t.Logf("archive again archived=%d\n", archived)
 	}
 }

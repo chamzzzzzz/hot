@@ -24,7 +24,7 @@ func (a *Archiver) Archive(board *hot.Board) (archived int, err error) {
 	}
 	defer db.Close()
 
-	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (Date TEXT, Title TEXT, Summary TEXT);", board.Name)); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (Date TEXT, Title TEXT, Summary TEXT, URL TEXT, Catagory TEXT, Extra TEXT);", board.Name)); err != nil {
 		return
 	}
 
@@ -41,15 +41,15 @@ func (a *Archiver) Archive(board *hot.Board) (archived int, err error) {
 
 func (a *Archiver) insert(db *sql.DB, tableName string, hot *hot.Hot) (ignore bool, err error) {
 	var rows *sql.Rows
-	if rows, err = db.Query(fmt.Sprintf("SELECT Date, Title FROM %s WHERE Title = ?", tableName), hot.Title); err != nil {
+	if rows, err = db.Query(fmt.Sprintf("SELECT Date FROM %s WHERE Title = ? AND Catagory = ?", tableName), hot.Title, hot.Catagory); err != nil {
 		return
 	}
 	defer rows.Close()
 
-	var date, title string
+	var date string
 	var firstTime time.Time
 	for rows.Next() {
-		if err = rows.Scan(&date, &title); err != nil {
+		if err = rows.Scan(&date); err != nil {
 			return
 		}
 
@@ -63,7 +63,7 @@ func (a *Archiver) insert(db *sql.DB, tableName string, hot *hot.Hot) (ignore bo
 		}
 	}
 
-	if _, err = db.Exec(fmt.Sprintf("INSERT INTO %s(Date, Title, Summary) VALUES(?,?,?)", tableName), hot.Date.Format(time.RFC3339), hot.Title, hot.Summary); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("INSERT INTO %s(Date, Title, Summary, URL, Catagory, Extra) VALUES(?,?,?,?,?,?)", tableName), hot.Date.Format(time.RFC3339), hot.Title, hot.Summary, hot.URL, hot.Catagory, hot.Extra); err != nil {
 		return
 	}
 	return

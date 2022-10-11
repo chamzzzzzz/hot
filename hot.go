@@ -9,6 +9,7 @@ type Hot struct {
 	Summary  string
 	URL      string
 	Catagory string
+	Extra    string
 	Date     time.Time
 }
 
@@ -30,6 +31,18 @@ func (b *Board) Append0(hot *Hot) *Hot {
 
 func (b *Board) Append(title, summary string, date time.Time) *Hot {
 	return b.Append3(title, summary, date)
+}
+
+func (b *Board) Append6(title, summary, url, catagory, extra string, date time.Time) *Hot {
+	hot := &Hot{
+		Title:    title,
+		Summary:  summary,
+		URL:      url,
+		Catagory: catagory,
+		Extra:    extra,
+		Date:     date,
+	}
+	return b.Append0(hot)
 }
 
 func (b *Board) Append5(title, summary, url, catagory string, date time.Time) *Hot {
