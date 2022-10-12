@@ -2,7 +2,6 @@ package qqvideo
 
 import (
 	"testing"
-	"time"
 )
 
 func TestCrawl(t *testing.T) {
@@ -11,7 +10,7 @@ func TestCrawl(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -22,7 +21,7 @@ func TestCrawlGeneral(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -33,7 +32,7 @@ func TestCrawlTV(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -44,7 +43,7 @@ func TestCrawlVariety(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -55,7 +54,7 @@ func TestCrawlCartoon(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -66,7 +65,7 @@ func TestCrawlChild(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -77,7 +76,7 @@ func TestCrawlMovie(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -88,7 +87,7 @@ func TestCrawlDoco(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -99,7 +98,7 @@ func TestCrawlGames(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -110,7 +109,7 @@ func TestCrawlMusic(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
 
 const (
@@ -82,18 +81,17 @@ func (c *Crawler) rfaWithLanguage(language string) (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, div := range dom.FindAllStrict("div", "class", "most_read_only first_most_bold") {
 		for _, li := range div.FindAll("li") {
 			a := li.Find("a")
@@ -101,8 +99,8 @@ func (c *Crawler) rfaWithLanguage(language string) (*hot.Board, error) {
 				return nil, a.Error
 			}
 			title := strings.TrimSpace(a.Text())
-			summary := a.Attrs()["href"]
-			board.Append(title, summary, date)
+			url := strings.TrimSpace(a.Attrs()["href"])
+			board.AppendTitleURL(title, url)
 		}
 	}
 	return board, nil

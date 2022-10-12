@@ -6,7 +6,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
-	"time"
+	"strings"
 )
 
 type Crawler struct {
@@ -30,27 +30,28 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(body, bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(data, body); err != nil {
 		return nil, err
-	} else if bodyJson.Code != "1" {
-		return nil, fmt.Errorf("body code: %s", bodyJson.Code)
+	} else if body.Code != "1" {
+		return nil, fmt.Errorf("body code: %s", body.Code)
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, row := range bodyJson.Data.Rows {
-		board.Append(row.Title, row.URL, date)
+	for _, row := range body.Data.Rows {
+		title := strings.TrimSpace(row.Title)
+		url := strings.TrimSpace(row.URL)
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }
 
-type bodyJson struct {
+type body struct {
 	Success string `json:"success"`
 	Code    string `json:"code"`
 	Message string `json:"message"`

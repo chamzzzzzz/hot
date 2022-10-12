@@ -5,7 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
-	"time"
+	"strings"
 )
 
 const (
@@ -37,18 +37,17 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	ulId := "d-1"
 	if c.BoardName == BoardGame {
 		ulId = "d-4"
@@ -58,8 +57,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		return nil, ul.Error
 	}
 	for _, a := range ul.FindAllStrict("a") {
-		title := a.Text()
-		board.Append(title, "", date)
+		title := strings.TrimSpace(a.Text())
+		url := strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }

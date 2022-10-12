@@ -5,7 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
-	"time"
+	"strings"
 )
 
 type Crawler struct {
@@ -29,32 +29,31 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, a := range dom.FindAllStrict("a", "class", "hotlist-item-toptwo-title") {
 		p := a.FindStrict("p", "class", "ellipsis-2 weight-bold")
 		if p.Error != nil {
 			continue
 		}
-		title := p.Text()
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		title := strings.TrimSpace(p.Text())
+		url := strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 
 	for _, a := range dom.FindAllStrict("a", "class", "hotlist-item-other-title ellipsis-2 weight-bold") {
-		title := a.Text()
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		title := strings.TrimSpace(a.Text())
+		url := strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }

@@ -2,7 +2,6 @@ package hupu
 
 import (
 	"testing"
-	"time"
 )
 
 func TestCrawl(t *testing.T) {
@@ -11,7 +10,7 @@ func TestCrawl(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -22,7 +21,7 @@ func TestCrawlBasketball(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -33,7 +32,7 @@ func TestCrawlFootball(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }
@@ -44,7 +43,7 @@ func TestCrawlGambia(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }

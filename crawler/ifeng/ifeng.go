@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type Crawler struct {
@@ -30,18 +29,17 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.Find("div", "class", "hot_box-1yXFLW7e")
 	if div.Error != nil {
 		return nil, div.Error
@@ -55,16 +53,16 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		return nil, div.Error
 	}
 	title := strings.TrimSpace(a.Text())
-	summary := a.Attrs()["href"]
-	board.Append(title, summary, date)
+	url := strings.TrimSpace(a.Attrs()["href"])
+	board.AppendTitleURL(title, url)
 	for _, p := range div.FindAllStrict("p", "class", "news_list_p-3EcL2Tvk ") {
 		a = p.Find("a")
 		if a.Error != nil {
 			return nil, div.Error
 		}
 		title = strings.TrimSpace(a.Text())
-		summary = a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url = strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }

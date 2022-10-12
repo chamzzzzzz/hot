@@ -5,7 +5,6 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 type Crawler struct {
@@ -40,9 +39,8 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, word := range body {
-		board.Append(word, "", date)
+		board.Append1(word)
 	}
 	return board, nil
 }

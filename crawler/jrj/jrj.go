@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 const (
@@ -56,26 +55,25 @@ func (c *Crawler) jrj_x_tech() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
+	data, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.FindStrict("div", "class", "hotart hotnews")
 	if div.Error != nil {
 		return nil, div.Error
 	}
 	for _, a := range div.FindAllStrict("a") {
 		title := strings.TrimSpace(a.Text())
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url := strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }
@@ -94,26 +92,25 @@ func (c *Crawler) jrj_x_house() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
+	data, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.FindStrict("div", "class", "hotart")
 	if div.Error != nil {
 		return nil, div.Error
 	}
 	for _, a := range div.FindAllStrict("a") {
 		title := strings.TrimSpace(a.Text())
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url := strings.TrimSpace(a.Attrs()["href"])
+		board.AppendTitleURL(title, url)
 	}
 	return board, nil
 }
@@ -132,18 +129,17 @@ func (c *Crawler) jrj() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
+	data, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, id := range []string{"con_1", "con_2"} {
 		ul := dom.Find("ul", "id", id)
 		if ul.Error != nil {
@@ -151,8 +147,8 @@ func (c *Crawler) jrj() (*hot.Board, error) {
 		}
 		for _, a := range ul.FindAll("a") {
 			title := strings.TrimSpace(a.Text())
-			summary := a.Attrs()["href"]
-			board.Append(title, summary, date)
+			url := strings.TrimSpace(a.Attrs()["href"])
+			board.AppendTitleURL(title, url)
 		}
 	}
 	return board, nil

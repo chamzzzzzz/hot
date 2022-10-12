@@ -7,7 +7,6 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 type Crawler struct {
@@ -32,41 +31,40 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	var bodyJsonWrap bodyJsonWrap
-	if err := json.Unmarshal(body, &bodyJsonWrap); err != nil {
+	var bodyWrap bodyWrap
+	if err := json.Unmarshal(data, &bodyWrap); err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(bodyJsonWrap.Body(), bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(bodyWrap.Body(), body); err != nil {
 		return nil, err
-	} else if bodyJson.Status != 1 {
-		return nil, fmt.Errorf("body status: %d", bodyJson.Status)
+	} else if body.Status != 1 {
+		return nil, fmt.Errorf("body status: %d", body.Status)
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, data := range bodyJson.Data {
-		board.Append(data.ResourceData.ContentData.Title, "", date)
+	for _, data := range body.Data {
+		board.Append1(data.ResourceData.ContentData.Title)
 	}
 	return board, nil
 }
 
-type bodyJsonWrap map[string]json.RawMessage
+type bodyWrap map[string]json.RawMessage
 
-func (w bodyJsonWrap) Body() json.RawMessage {
+func (w bodyWrap) Body() json.RawMessage {
 	for _, v := range w {
 		return v
 	}
 	return nil
 }
 
-type bodyJson struct {
+type body struct {
 	Data []struct {
 		ResourceData struct {
 			ContentData struct {

@@ -6,6 +6,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -30,32 +31,36 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(body, bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(data, body); err != nil {
 		return nil, err
-	} else if bodyJson.Error != 0 {
-		return nil, fmt.Errorf("body error: %d", bodyJson.Error)
+	} else if body.Error != 0 {
+		return nil, fmt.Errorf("body error: %d", body.Error)
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, data := range bodyJson.Data {
-		board.Append(fmt.Sprintf("%s | %s", data.Title, data.Summary), fmt.Sprintf("/post/%d", data.ID), date)
+	for _, data := range body.Data {
+		title := strings.TrimSpace(data.Title)
+		summary := strings.TrimSpace(data.Summary)
+		url := fmt.Sprintf("https://sspai.com/post/%d", data.ID)
+		date := time.Unix(data.ReleasedTime, 0)
+		board.Append3x1(title, summary, url, date)
 	}
 	return board, nil
 }
 
-type bodyJson struct {
+type body struct {
 	Error int    `json:"error"`
 	Msg   string `json:"msg"`
 	Data  []struct {
-		ID      int    `json:"id"`
-		Title   string `json:"title"`
-		Summary string `json:"summary"`
+		ID           int    `json:"id"`
+		Title        string `json:"title"`
+		Summary      string `json:"summary"`
+		ReleasedTime int64  `json:"released_time"`
 	} `json:"data"`
 }

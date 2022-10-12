@@ -1,7 +1,6 @@
 package semiunion
 
 import (
-	"fmt"
 	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
@@ -31,18 +30,17 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, li := range dom.FindAllStrict("li", "class", "each-news") {
 		div := li.Find("div", "class", "name")
 		if div.Error != nil {
@@ -56,9 +54,18 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if div2.Error != nil {
 			return nil, div2.Error
 		}
-		title := fmt.Sprintf("%s|%s", strings.TrimSpace(a.Text()), strings.TrimSpace(div2.Text()))
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		span := li.Find("span", "class", "time")
+		if span.Error != nil {
+			return nil, span.Error
+		}
+		title := strings.TrimSpace(a.Text())
+		summary := strings.TrimSpace(div2.Text())
+		url := "http://www.semiunion.com" + strings.TrimSpace(a.Attrs()["href"])
+		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(span.Text()), time.Local)
+		if err != nil {
+			return nil, err
+		}
+		board.Append3x1(title, summary, url, date)
 	}
 	return board, nil
 }

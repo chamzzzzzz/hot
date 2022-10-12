@@ -40,70 +40,46 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	var bodyXML bodyXML
-	if err := xml.Unmarshal(body, &bodyXML); err != nil {
+	body := &body{}
+	if err := xml.Unmarshal(data, body); err != nil {
 		return nil, err
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, item := range bodyXML.Channel.Item {
+	for _, item := range body.Channel.Item {
 		title := item.Title
 		summary := item.Description
+		url := item.Link
+		date, err := time.Parse(time.RFC1123, item.PubDate)
+		if err != nil {
+			return nil, err
+		}
+		date = time.Unix(date.Unix(), 0)
 		i := strings.Index(summary, "<p>")
 		j := strings.Index(summary, "</p>")
 		if i >= 0 && j >= 0 {
 			summary = summary[i+3 : j]
 		}
-		board.Append(title, summary, date)
+		board.Append3x1(title, summary, url, date)
 	}
 	return board, nil
 }
 
-type bodyXML struct {
+type body struct {
 	XMLName xml.Name `xml:"rss"`
 	Text    string   `xml:",chardata"`
-	Dc      string   `xml:"dc,attr"`
-	Content string   `xml:"content,attr"`
-	Atom    string   `xml:"atom,attr"`
-	Version string   `xml:"version,attr"`
 	Channel struct {
-		Text        string `xml:",chardata"`
-		Title       string `xml:"title"`
-		Description string `xml:"description"`
-		Link        struct {
-			Text string `xml:",chardata"`
-			Href string `xml:"href,attr"`
-			Rel  string `xml:"rel,attr"`
-			Type string `xml:"type,attr"`
-		} `xml:"link"`
-		Image struct {
-			Text  string `xml:",chardata"`
-			URL   string `xml:"url"`
-			Title string `xml:"title"`
-			Link  string `xml:"link"`
-		} `xml:"image"`
-		Generator     string   `xml:"generator"`
-		LastBuildDate string   `xml:"lastBuildDate"`
-		PubDate       string   `xml:"pubDate"`
-		Copyright     string   `xml:"copyright"`
-		Language      string   `xml:"language"`
-		Category      []string `xml:"category"`
-		Item          []struct {
+		Item []struct {
 			Text        string `xml:",chardata"`
 			Title       string `xml:"title"`
 			Description string `xml:"description"`
 			Link        string `xml:"link"`
-			Guid        struct {
-				Text        string `xml:",chardata"`
-				IsPermaLink string `xml:"isPermaLink,attr"`
-			} `xml:"guid"`
-			PubDate string `xml:"pubDate"`
+			PubDate     string `xml:"pubDate"`
 		} `xml:"item"`
 	} `xml:"channel"`
 }

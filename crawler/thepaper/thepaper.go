@@ -6,6 +6,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -30,34 +31,36 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(body, bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(data, body); err != nil {
 		return nil, err
-	} else if bodyJson.ResultCode != 1 {
-		return nil, fmt.Errorf("body result code: %d", bodyJson.ResultCode)
+	} else if body.ResultCode != 1 {
+		return nil, fmt.Errorf("body result code: %d", body.ResultCode)
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-
-	for _, news := range bodyJson.Data.HotNews {
-		board.Append(news.Name, fmt.Sprintf("https://www.thepaper.cn/newsDetail_forward_%s", news.ContID), date)
+	for _, news := range body.Data.HotNews {
+		title := strings.TrimSpace(news.Name)
+		url := "https://www.thepaper.cn/newsDetail_forward_" + strings.TrimSpace(news.ContID)
+		date := time.UnixMilli(news.PubTimeLong)
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }
 
-type bodyJson struct {
+type body struct {
 	ResultCode int    `json:"resultCode"`
 	ResultMsg  string `json:"resultMsg"`
 	Data       struct {
 		HotNews []struct {
-			ContID string `json:"contId"`
-			Name   string `json:"name"`
+			ContID      string `json:"contId"`
+			Name        string `json:"name"`
+			PubTimeLong int64  `json:"pubTimeLong"`
 		} `json:"hotNews"`
 	} `json:"data"`
 }

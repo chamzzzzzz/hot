@@ -30,26 +30,33 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, div := range dom.FindAllStrict("div", "class", "style_report__ZfacW") {
 		a := div.Find("a")
 		if a.Error != nil {
 			return nil, a.Error
 		}
+		span := div.Find("span")
+		if span.Error != nil {
+			return nil, span.Error
+		}
 		title := strings.TrimSpace(a.Text())
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url := "https://www.fxbaogao.com" + strings.TrimSpace(a.Attrs()["href"])
+		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(span.Text()), time.Local)
+		if err != nil {
+			return nil, err
+		}
+		board.Append3x1(title, "", url, date)
 	}
 	for _, div := range dom.FindAllStrict("div", "class", "style_hotCardR__t9P0y") {
 		//soup bug?
@@ -62,9 +69,21 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if p.Error != nil {
 			return nil, p.Error
 		}
+		div = div.Find("div", "class", "style_time__bVTcg")
+		if div.Error != nil {
+			return nil, div.Error
+		}
+		span := div.Find("span")
+		if span.Error != nil {
+			return nil, span.Error
+		}
 		title := strings.TrimSpace(p.Text())
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url := "https://www.fxbaogao.com" + strings.TrimSpace(a.Attrs()["href"])
+		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(span.Text()), time.Local)
+		if err != nil {
+			return nil, err
+		}
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }

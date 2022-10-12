@@ -30,26 +30,38 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.Find("div", "class", "ranking")
 	if div.Error != nil {
 		return nil, div.Error
 	}
-	for _, a := range div.FindAllStrict("a") {
+	for _, dl := range div.FindAllStrict("dl") {
+		a := dl.Find("a")
+		if a.Error != nil {
+			return nil, a.Error
+		}
+		dd := dl.Find("dd", "class", "time")
+		if dd.Error != nil {
+			return nil, dd.Error
+		}
+
 		title := strings.TrimSpace(a.Text())
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url := strings.TrimSpace(a.Attrs()["href"])
+		date, err := time.ParseInLocation("2006-01-02 15:04:05", strings.TrimSpace(dd.Text()), time.Local)
+		if err != nil {
+			return nil, err
+		}
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }

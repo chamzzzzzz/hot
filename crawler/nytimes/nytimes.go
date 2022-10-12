@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 type Crawler struct {
@@ -40,27 +39,26 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(body, bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(data, body); err != nil {
 		return nil, err
-	} else if bodyJson.Code != 0 {
-		return nil, fmt.Errorf("body code: %d", bodyJson.Code)
+	} else if body.Code != 0 {
+		return nil, fmt.Errorf("body code: %d", body.Code)
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, daily := range bodyJson.List.Daily {
-		board.Append(fmt.Sprintf("%s | %s", daily.Headline, daily.Summary), daily.URL, date)
+	for _, daily := range body.List.Daily {
+		board.AppendTitleSummaryURL(daily.Headline, daily.Summary, daily.URL)
 	}
 	return board, nil
 }
 
-type bodyJson struct {
+type body struct {
 	Code int `json:"code"`
 	List struct {
 		Daily []struct {

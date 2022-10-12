@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type Crawler struct {
@@ -32,40 +31,40 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, script := range dom.FindAllStrict("script") {
-		body := strings.TrimSpace(script.Text())
-		idx := strings.Index(body, "window.__INITIAL_STATE__ = ")
+		_body := strings.TrimSpace(script.Text())
+		idx := strings.Index(_body, "window.__INITIAL_STATE__ = ")
 		if idx < 0 {
 			continue
 		}
-		body = body[idx:]
-		body = strings.TrimPrefix(body, "window.__INITIAL_STATE__ = ")
-		body = strings.Trim(body, ";")
-		bodyJson := &bodyJson{}
-		if err := json.Unmarshal([]byte(body), bodyJson); err != nil {
+		_body = _body[idx:]
+		_body = strings.TrimPrefix(_body, "window.__INITIAL_STATE__ = ")
+		_body = strings.Trim(_body, ";")
+		body := &body{}
+		if err := json.Unmarshal([]byte(_body), body); err != nil {
 			return nil, err
 		}
-		for _, topPost := range bodyJson.Home.TopPost {
-			board.Append(fmt.Sprintf("%s | %s", topPost.Title, topPost.Summary), fmt.Sprintf("/post/%d", topPost.ID), date)
+		for _, topPost := range body.Home.TopPost {
+			url := fmt.Sprintf("https://www.odaily.news/post/%d", topPost.ID)
+			board.AppendTitleSummaryURL(topPost.Title, topPost.Summary, url)
 		}
 		return board, nil
 	}
 	return nil, fmt.Errorf("not found body")
 }
 
-type bodyJson struct {
+type body struct {
 	Home struct {
 		TopPost []struct {
 			ID      int    `json:"id"`

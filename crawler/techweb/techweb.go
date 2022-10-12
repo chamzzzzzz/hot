@@ -30,35 +30,39 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	var bodyXML bodyXML
-	if err := xml.Unmarshal(body, &bodyXML); err != nil {
+	body := &body{}
+	if err := xml.Unmarshal(data, body); err != nil {
 		return nil, err
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, item := range bodyXML.Channel.Item {
+	for _, item := range body.Channel.Item {
 		title := item.Title
-		summary := item.Link
+		url := item.Link
+		date, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			return nil, err
+		}
 		if title == "" {
 			continue
 		}
-		board.Append(title, summary, date)
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }
 
-type bodyXML struct {
+type body struct {
 	XMLName xml.Name `xml:"rss"`
 	Channel struct {
 		Item []struct {
-			Title string `xml:"title"`
-			Link  string `xml:"link"`
+			Title   string `xml:"title"`
+			Link    string `xml:"link"`
+			PubDate string `xml:"pubDate"`
 		} `xml:"item"`
 	} `xml:"channel"`
 }

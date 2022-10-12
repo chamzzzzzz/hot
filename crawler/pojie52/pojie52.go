@@ -1,12 +1,14 @@
 package pojie52
 
 import (
+	"fmt"
 	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -31,22 +33,46 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
+	data, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, a := range dom.FindAllStrict("a", "class", "xst") {
-		title := a.Text()
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+	div := dom.FindStrict("div", "id", "threadlist")
+	if div.Error != nil {
+		return nil, div.Error
+	}
+	div = div.Find("div", "class", "bm_c")
+	if div.Error != nil {
+		return nil, div.Error
+	}
+	for _, tbody := range div.FindAll("tbody") {
+		a := tbody.Find("a", "class", "xst")
+		if a.Error != nil {
+			return nil, a.Error
+		}
+		td := tbody.FindAll("td", "class", "by")
+		if len(td) != 3 {
+			return nil, fmt.Errorf("td count invalid")
+		}
+		span := td[1].Find("span")
+		if span.Error != nil {
+			return nil, span.Error
+		}
+
+		title := strings.TrimSpace(a.Text())
+		url := "https://www.52pojie.cn/" + strings.TrimSpace(a.Attrs()["href"])
+		date, err := time.ParseInLocation("2006-1-2 15:04", strings.TrimSpace(span.Text()), time.Local)
+		if err != nil {
+			return nil, err
+		}
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }

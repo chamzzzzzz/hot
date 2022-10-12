@@ -5,6 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -30,26 +31,41 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	for _, div := range dom.FindAllStrict("div", "class", "item-intro") {
-		a := div.Find("a")
+		a := div.Find("a", "class", "item-title")
 		if a.Error != nil {
 			return nil, a.Error
 		}
+		p := div.Find("p", "class", "item-desc")
+		if p.Error != nil {
+			return nil, p.Error
+		}
+		span := div.Find("span", "class", "time")
+		if span.Error != nil {
+			return nil, span.Error
+		}
+
+		timestamp, err := strconv.ParseInt(span.Attrs()["data-time"], 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
 		title := strings.TrimSpace(a.Text())
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		summary := strings.TrimSpace(p.Text())
+		url := "https:" + strings.TrimSpace(a.Attrs()["href"])
+		date := time.Unix(timestamp, 0)
+		board.Append3x1(title, summary, url, date)
 	}
 	return board, nil
 }

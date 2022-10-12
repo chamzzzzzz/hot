@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
-	"time"
 )
 
 var re = regexp.MustCompile(`//searchapi\.eastmoney\.com/api/hotkeyword/get\?count=20&token=([A-Z0-9]+)`)
@@ -38,22 +37,21 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyJson := &bodyJson{}
-	if err := json.Unmarshal(body, bodyJson); err != nil {
+	body := &body{}
+	if err := json.Unmarshal(data, body); err != nil {
 		return nil, err
-	} else if bodyJson.Status != 0 {
-		return nil, fmt.Errorf("body status: %d", bodyJson.Status)
+	} else if body.Status != 0 {
+		return nil, fmt.Errorf("body status: %d", body.Status)
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
-	for _, data := range bodyJson.Data {
-		board.Append(data.KeyPhrase, "", date)
+	for _, data := range body.Data {
+		board.Append1(data.KeyPhrase)
 	}
 	return board, nil
 }
@@ -72,19 +70,19 @@ func (c *Crawler) getURL() (string, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return "", err
 	}
 
-	URL := re.FindString(string(body))
+	URL := re.FindString(string(data))
 	if URL == "" {
 		return "", fmt.Errorf("not match")
 	}
 	return "https:" + URL, nil
 }
 
-type bodyJson struct {
+type body struct {
 	Data []struct {
 		KeyPhrase string `json:"KeyPhrase"`
 	} `json:"Data"`

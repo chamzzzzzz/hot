@@ -3,7 +3,6 @@ package theguardian
 import (
 	"os"
 	"testing"
-	"time"
 )
 
 func TestCrawl(t *testing.T) {
@@ -14,7 +13,7 @@ func TestCrawl(t *testing.T) {
 		t.Error(err)
 	} else {
 		for _, hot := range board.Hots {
-			t.Log(hot.Title, hot.Summary, hot.Date.Format(time.RFC3339))
+			t.Log(hot)
 		}
 	}
 }

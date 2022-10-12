@@ -1,12 +1,14 @@
 package daniu
 
 import (
+	"fmt"
 	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -31,30 +33,47 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
+	data, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.FindStrict("div", "class", "tl")
 	if div.Error != nil {
 		return nil, div.Error
 	}
-	for _, th := range div.FindAllStrict("th") {
-		a := th.FindStrict("a")
-		if a.Error != nil {
-			continue
+	tbody := div.FindAllStrict("tbody")
+	if len(tbody) != 2 {
+		return nil, fmt.Errorf("tbody count invalid")
+	}
+	for _, tr := range tbody[1].FindAllStrict("tr") {
+		th := tr.Find("th")
+		if th.Error != nil {
+			return nil, th.Error
 		}
-		title := a.Text()
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		em := tr.FindStrict("em")
+		if em.Error != nil {
+			fmt.Println(tr.FullText())
+			return nil, em.Error
+		}
+		a := th.Find("a")
+		if a.Error != nil {
+			return nil, a.Error
+		}
+
+		title := strings.TrimSpace(a.Text())
+		url := strings.TrimSpace(a.Attrs()["href"])
+		date, err := time.ParseInLocation("2006-01-02 15:04", strings.TrimSpace(em.Text()), time.Local)
+		if err != nil {
+			return nil, err
+		}
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }

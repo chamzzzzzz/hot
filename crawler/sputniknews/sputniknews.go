@@ -5,6 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -30,26 +31,40 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	defer res.Body.Close()
 
-	html, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	dom := soup.HTMLParse(string(html))
+	dom := soup.HTMLParse(string(data))
 	if dom.Error != nil {
 		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
-	date := time.Now()
 	div := dom.Find("div", "data-section", "3")
 	if div.Error != nil {
 		return nil, div.Error
 	}
 	for _, a := range div.FindAllStrict("a", "class", "cell-list__item m-no-image") {
+		span := a.Find("span", "class", "cell__controls-date")
+		if span.Error != nil {
+			return nil, span.Error
+		}
+		span = span.Find("span")
+		if span.Error != nil {
+			return nil, span.Error
+		}
+
+		timestamp, err := strconv.ParseInt(span.Attrs()["data-unixtime"], 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
 		title := strings.TrimSpace(a.Attrs()["title"])
-		summary := a.Attrs()["href"]
-		board.Append(title, summary, date)
+		url := "https://www.sputniknews.cn" + strings.TrimSpace(a.Attrs()["href"])
+		date := time.Unix(timestamp, 0)
+		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
 }
