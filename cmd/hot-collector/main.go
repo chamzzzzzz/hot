@@ -117,7 +117,7 @@ import (
 
 var (
 	defaultLogger = log.New(os.Stdout, "collector: ", log.Ldate|log.Lmicroseconds)
-	cronLogger    = log.New(os.Stdout, "cron: ", log.Ldate|log.Lmicroseconds)
+	cronLogger    = log.New(os.Stdout, "collector-cron: ", log.Ldate|log.Lmicroseconds)
 )
 
 type HotCollector struct {

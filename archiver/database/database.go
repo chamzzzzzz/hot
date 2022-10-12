@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/chamzzzzzz/hot"
 	_ "github.com/go-sql-driver/mysql"
+	"strings"
 	"time"
 )
 
@@ -18,6 +19,10 @@ func (a *Archiver) Name() string {
 }
 
 func (a *Archiver) Archive(board *hot.Board) (archived int, err error) {
+	if err = a.check(board); err != nil {
+		return
+	}
+
 	var db *sql.DB
 	if db, err = sql.Open(a.DriverName, a.DataSourceName); err != nil {
 		return
@@ -55,4 +60,19 @@ func (a *Archiver) insert(db *sql.DB, tableName string, hot *hot.Hot) (ignore bo
 		return
 	}
 	return
+}
+
+func (a *Archiver) check(board *hot.Board) error {
+	if len(board.Hots) == 0 {
+		return fmt.Errorf("empty")
+	}
+
+	for _, hot := range board.Hots {
+		if hot.URL != "" {
+			if !strings.HasPrefix(hot.URL, "http://") && !strings.HasPrefix(hot.URL, "https://") {
+				return fmt.Errorf("url `%s` imperfect", hot.URL)
+			}
+		}
+	}
+	return nil
 }
