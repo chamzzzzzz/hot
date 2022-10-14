@@ -50,7 +50,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			return nil, h2.Error
 		}
 		title := strings.TrimSpace(h2.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.yicai.com" + strings.TrimSpace(a.Attrs()["href"])
 		board.AppendTitleURL(title, url)
 	}
 	return board, nil
