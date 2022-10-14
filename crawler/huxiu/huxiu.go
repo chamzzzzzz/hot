@@ -40,7 +40,6 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-
 	for _, a := range dom.FindAllStrict("a", "class", "lirt-item__right__content") {
 		h3 := a.Find("h3")
 		if h3.Error != nil {

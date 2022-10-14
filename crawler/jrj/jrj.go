@@ -11,37 +11,61 @@ import (
 )
 
 const (
-	Tech  = "tech"
-	House = "house"
+	Finance = "finance"
+	Tech    = "tech"
+	House   = "house"
 )
 
 type Crawler struct {
-	BoardName string
+	Catalog string
 }
 
 func (c *Crawler) Name() string {
-	switch c.BoardName {
-	case Tech:
-		return "jrj_x_tech"
-	case House:
-		return "jrj_x_house"
-	default:
-		return "jrj"
-	}
+	return "jrj"
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	switch c.BoardName {
+	switch c.Catalog {
+	case Finance:
+		return c.finance()
 	case Tech:
-		return c.jrj_x_tech()
+		return c.tech()
 	case House:
-		return c.jrj_x_house()
+		return c.house()
 	default:
-		return c.jrj()
+		return c.all()
 	}
 }
 
-func (c *Crawler) jrj_x_tech() (*hot.Board, error) {
+func (c *Crawler) all() (*hot.Board, error) {
+	board := hot.NewBoard(c.Name())
+	if b, err := c.finance(); err != nil {
+		return nil, err
+	} else {
+		for _, hot := range b.Hots {
+			board.Append0(hot)
+		}
+	}
+
+	if b, err := c.tech(); err != nil {
+		return nil, err
+	} else {
+		for _, hot := range b.Hots {
+			board.Append0(hot)
+		}
+	}
+
+	if b, err := c.house(); err != nil {
+		return nil, err
+	} else {
+		for _, hot := range b.Hots {
+			board.Append0(hot)
+		}
+	}
+	return board, nil
+}
+
+func (c *Crawler) tech() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://tech.jrj.com.cn", nil)
 	if err != nil {
@@ -73,12 +97,12 @@ func (c *Crawler) jrj_x_tech() (*hot.Board, error) {
 	for _, a := range div.FindAllStrict("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		board.Append4(title, "", url, Tech)
 	}
 	return board, nil
 }
 
-func (c *Crawler) jrj_x_house() (*hot.Board, error) {
+func (c *Crawler) house() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://house.jrj.com.cn", nil)
 	if err != nil {
@@ -110,12 +134,12 @@ func (c *Crawler) jrj_x_house() (*hot.Board, error) {
 	for _, a := range div.FindAllStrict("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		board.Append4(title, "", url, House)
 	}
 	return board, nil
 }
 
-func (c *Crawler) jrj() (*hot.Board, error) {
+func (c *Crawler) finance() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://finance.jrj.com.cn/list/industrynews.shtml", nil)
 	if err != nil {
@@ -148,7 +172,7 @@ func (c *Crawler) jrj() (*hot.Board, error) {
 		for _, a := range ul.FindAll("a") {
 			title := strings.TrimSpace(a.Text())
 			url := strings.TrimSpace(a.Attrs()["href"])
-			board.AppendTitleURL(title, url)
+			board.Append4(title, "", url, Finance)
 		}
 	}
 	return board, nil

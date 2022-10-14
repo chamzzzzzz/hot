@@ -9,17 +9,16 @@ import (
 )
 
 const (
-	BoardGame = "game"
+	IT      = "it"
+	Game    = "game"
+	Unknown = "unknown"
 )
 
 type Crawler struct {
-	BoardName string
+	Catalog string
 }
 
 func (c *Crawler) Name() string {
-	if c.BoardName == BoardGame {
-		return "ithome_x_game"
-	}
 	return "ithome"
 }
 
@@ -48,18 +47,41 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	ulId := "d-1"
-	if c.BoardName == BoardGame {
-		ulId = "d-4"
-	}
-	ul := dom.FindStrict("ul", "id", ulId)
-	if ul.Error != nil {
-		return nil, ul.Error
-	}
-	for _, a := range ul.FindAllStrict("a") {
-		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+	for _, ulId := range catalogtoids(c.Catalog) {
+		ul := dom.FindStrict("ul", "id", ulId)
+		if ul.Error != nil {
+			return nil, ul.Error
+		}
+		for _, a := range ul.FindAllStrict("a") {
+			title := strings.TrimSpace(a.Text())
+			url := strings.TrimSpace(a.Attrs()["href"])
+			catalog := idtocatalog(ulId)
+			board.Append4(title, "", url, catalog)
+		}
 	}
 	return board, nil
+}
+
+func idtocatalog(id string) string {
+	switch id {
+	case "d-1":
+		return IT
+	case "d-4":
+		return Game
+	default:
+		return Unknown
+	}
+}
+
+func catalogtoids(catalog string) []string {
+	switch catalog {
+	case "":
+		return []string{"d-1", "d-4"}
+	case IT:
+		return []string{"d-1"}
+	case Game:
+		return []string{"d-4"}
+	default:
+		return nil
+	}
 }

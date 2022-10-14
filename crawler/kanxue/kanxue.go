@@ -9,32 +9,49 @@ import (
 )
 
 const (
-	BBS = "bbs"
+	News = "news"
+	BBS  = "bbs"
 )
 
 type Crawler struct {
-	BoardName string
+	Catalog string
 }
 
 func (c *Crawler) Name() string {
-	switch c.BoardName {
-	case BBS:
-		return "kanxue_x_bbs"
-	default:
-		return "kanxue"
-	}
+	return "kanxue"
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	switch c.BoardName {
+	switch c.Catalog {
+	case News:
+		return c.news()
 	case BBS:
-		return c.kanxue_x_bbs()
+		return c.bbs()
 	default:
-		return c.kanxue()
+		return c.all()
 	}
 }
 
-func (c *Crawler) kanxue_x_bbs() (*hot.Board, error) {
+func (c *Crawler) all() (*hot.Board, error) {
+	board := hot.NewBoard(c.Name())
+	b1, err := c.news()
+	if err != nil {
+		return nil, err
+	}
+	b2, err := c.bbs()
+	if err != nil {
+		return nil, err
+	}
+	for _, hot := range b1.Hots {
+		board.Append0(hot)
+	}
+	for _, hot := range b2.Hots {
+		board.Append0(hot)
+	}
+	return board, nil
+}
+
+func (c *Crawler) bbs() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://bbs.pediy.com/thread-hotlist-all-0.htm", nil)
 	if err != nil {
@@ -70,12 +87,12 @@ func (c *Crawler) kanxue_x_bbs() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Text())
 		url := "https://bbs.pediy.com/" + strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		board.Append4(title, "", url, BBS)
 	}
 	return board, nil
 }
 
-func (c *Crawler) kanxue() (*hot.Board, error) {
+func (c *Crawler) news() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://www.kanxue.com", nil)
 	if err != nil {
@@ -107,7 +124,7 @@ func (c *Crawler) kanxue() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		board.Append4(title, "", url, News)
 	}
 	return board, nil
 }

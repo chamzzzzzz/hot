@@ -40,7 +40,6 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-
 	div := dom.FindStrict("div", "class", "Section-block p-10 tps-desktop")
 	if div.Error != nil {
 		return nil, div.Error

@@ -9,14 +9,14 @@ type Hot struct {
 	Title       string
 	Summary     string
 	URL         string
-	Catagory    string
+	Catalog     string
 	Extra       string
 	Date        time.Time
 	PublishDate time.Time
 }
 
 func (hot *Hot) String() string {
-	return fmt.Sprintf("%s | %s | %s | %s | %s | %s | %s", hot.Title, hot.Summary, hot.URL, hot.Catagory, hot.Extra, hot.Date.Format(time.RFC3339), hot.PublishDate.Format(time.RFC3339))
+	return fmt.Sprintf("%s | %s | %s | %s | %s | %s | %s", hot.Title, hot.Summary, hot.URL, hot.Catalog, hot.Extra, hot.Date.Format(time.RFC3339), hot.PublishDate.Format(time.RFC3339))
 }
 
 type Board struct {
@@ -63,20 +63,20 @@ func (b *Board) Append3x1(title, summary, url string, publishDate time.Time) *Ho
 	return b.Append5x2(title, summary, url, "", "", time.Now(), publishDate)
 }
 
-func (b *Board) Append4(title, summary, url, catagory string) *Hot {
-	return b.Append5x2(title, summary, url, catagory, "", time.Now(), time.Now())
+func (b *Board) Append4(title, summary, url, catalog string) *Hot {
+	return b.Append5x2(title, summary, url, catalog, "", time.Now(), time.Now())
 }
 
-func (b *Board) Append4x1(title, summary, url, catagory string, publishDate time.Time) *Hot {
-	return b.Append5x2(title, summary, url, catagory, "", time.Now(), publishDate)
+func (b *Board) Append4x1(title, summary, url, catalog string, publishDate time.Time) *Hot {
+	return b.Append5x2(title, summary, url, catalog, "", time.Now(), publishDate)
 }
 
-func (b *Board) Append5(title, summary, url, catagory, extra string) *Hot {
-	return b.Append5x2(title, summary, url, catagory, extra, time.Now(), time.Now())
+func (b *Board) Append5(title, summary, url, catalog, extra string) *Hot {
+	return b.Append5x2(title, summary, url, catalog, extra, time.Now(), time.Now())
 }
 
-func (b *Board) Append5x1(title, summary, url, catagory, extra string, publishDate time.Time) *Hot {
-	return b.Append5x2(title, summary, url, catagory, extra, time.Now(), publishDate)
+func (b *Board) Append5x1(title, summary, url, catalog, extra string, publishDate time.Time) *Hot {
+	return b.Append5x2(title, summary, url, catalog, extra, time.Now(), publishDate)
 }
 
 func (b *Board) AppendTitleSummaryURL(title, summary, url string) *Hot {
@@ -87,12 +87,12 @@ func (b *Board) AppendTitleURL(title, url string) *Hot {
 	return b.Append3(title, "", url)
 }
 
-func (b *Board) Append5x2(title, summary, url, catagory, extra string, date, publishDate time.Time) *Hot {
+func (b *Board) Append5x2(title, summary, url, catalog, extra string, date, publishDate time.Time) *Hot {
 	hot := &Hot{
 		Title:       title,
 		Summary:     summary,
 		URL:         url,
-		Catagory:    catagory,
+		Catalog:     catalog,
 		Extra:       extra,
 		Date:        date,
 		PublishDate: publishDate,

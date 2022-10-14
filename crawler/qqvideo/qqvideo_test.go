@@ -15,8 +15,8 @@ func TestCrawl(t *testing.T) {
 	}
 }
 
-func TestCrawlGeneral(t *testing.T) {
-	c := Crawler{General}
+func TestCrawlSearch(t *testing.T) {
+	c := Crawler{Search}
 	if board, err := c.Crawl(); err != nil {
 		t.Error(err)
 	} else {

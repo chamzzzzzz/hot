@@ -12,55 +12,47 @@ const (
 	Basketball = "basketball"
 	Football   = "football"
 	Gambia     = "gambia"
+	Unknown    = "unknown"
 )
 
 type Crawler struct {
-	BoardName string
+	Catalog string
 }
 
 func (c *Crawler) Name() string {
-	switch c.BoardName {
-	case Basketball:
-		return "hupu_x_basketball"
-	case Football:
-		return "hupu_x_football"
-	case Gambia:
-		return "hupu_x_gambia"
-	default:
-		return "hupu"
-	}
+	return "hupu"
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	switch c.BoardName {
+	switch c.Catalog {
 	case Basketball:
-		return c.hupu_x_basketball()
+		return c.basketball()
 	case Football:
-		return c.hupu_x_football()
+		return c.football()
 	case Gambia:
-		return c.hupu_x_gambia()
+		return c.gambia()
 	default:
-		return c.hupu()
+		return c.all()
 	}
 }
 
-func (c *Crawler) hupu_x_basketball() (*hot.Board, error) {
-	return c.hupuWithClasses([]string{"newpcbasketball"})
+func (c *Crawler) basketball() (*hot.Board, error) {
+	return c.withClasses("newpcbasketball")
 }
 
-func (c *Crawler) hupu_x_football() (*hot.Board, error) {
-	return c.hupuWithClasses([]string{"newpcsoccer"})
+func (c *Crawler) football() (*hot.Board, error) {
+	return c.withClasses("newpcsoccer")
 }
 
-func (c *Crawler) hupu_x_gambia() (*hot.Board, error) {
-	return c.hupuWithClasses([]string{"newpcbbs"})
+func (c *Crawler) gambia() (*hot.Board, error) {
+	return c.withClasses("newpcbbs")
 }
 
-func (c *Crawler) hupu() (*hot.Board, error) {
-	return c.hupuWithClasses([]string{"newpcbasketball", "newpcsoccer", "newpcbbs"})
+func (c *Crawler) all() (*hot.Board, error) {
+	return c.withClasses("newpcbasketball", "newpcsoccer", "newpcbbs")
 }
 
-func (c *Crawler) hupuWithClasses(hotClasses []string) (*hot.Board, error) {
+func (c *Crawler) withClasses(classes ...string) (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://www.hupu.com", nil)
 	if err != nil {
@@ -85,16 +77,30 @@ func (c *Crawler) hupuWithClasses(hotClasses []string) (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, hotClass := range hotClasses {
-		for _, a := range dom.FindAllStrict("a", "class", hotClass) {
+	for _, class := range classes {
+		for _, a := range dom.FindAllStrict("a", "class", class) {
 			div := a.FindStrict("div", "class", "hot-title")
 			if div.Error != nil {
 				return nil, div.Error
 			}
 			title := strings.TrimSpace(div.Text())
 			url := strings.TrimSpace(a.Attrs()["href"])
-			board.AppendTitleURL(title, url)
+			catalog := classtocatalog(class)
+			board.Append4(title, "", url, catalog)
 		}
 	}
 	return board, nil
+}
+
+func classtocatalog(class string) string {
+	switch class {
+	case "newpcbasketball":
+		return Basketball
+	case "newpcsoccer":
+		return Football
+	case "newpcbbs":
+		return Gambia
+	default:
+		return Unknown
+	}
 }

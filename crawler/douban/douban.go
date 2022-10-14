@@ -9,32 +9,49 @@ import (
 )
 
 const (
+	Note  = "note"
 	Movie = "movie"
 )
 
 type Crawler struct {
-	BoardName string
+	Catalog string
 }
 
 func (c *Crawler) Name() string {
-	switch c.BoardName {
-	case Movie:
-		return "douban_x_movie"
-	default:
-		return "douban"
-	}
+	return "douban"
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	switch c.BoardName {
+	switch c.Catalog {
+	case Note:
+		return c.note()
 	case Movie:
-		return c.douban_x_movie()
+		return c.movie()
 	default:
-		return c.douban()
+		return c.all()
 	}
 }
 
-func (c *Crawler) douban_x_movie() (*hot.Board, error) {
+func (c *Crawler) all() (*hot.Board, error) {
+	board := hot.NewBoard(c.Name())
+	b1, err := c.note()
+	if err != nil {
+		return nil, err
+	}
+	b2, err := c.movie()
+	if err != nil {
+		return nil, err
+	}
+	for _, hot := range b1.Hots {
+		board.Append0(hot)
+	}
+	for _, hot := range b2.Hots {
+		board.Append0(hot)
+	}
+	return board, nil
+}
+
+func (c *Crawler) movie() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://movie.douban.com", nil)
 	if err != nil {
@@ -70,12 +87,12 @@ func (c *Crawler) douban_x_movie() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		board.Append4(title, "", url, Movie)
 	}
 	return board, nil
 }
 
-func (c *Crawler) douban() (*hot.Board, error) {
+func (c *Crawler) note() (*hot.Board, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://www.douban.com", nil)
 	if err != nil {
@@ -100,7 +117,6 @@ func (c *Crawler) douban() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-
 	div := dom.Find("div", "class", "notes")
 	if div.Error != nil {
 		return nil, div.Error
@@ -108,7 +124,7 @@ func (c *Crawler) douban() (*hot.Board, error) {
 	for _, a := range div.FindAll("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		board.Append4(title, "", url, Note)
 	}
 	return board, nil
 }

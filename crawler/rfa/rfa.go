@@ -17,49 +17,68 @@ const (
 )
 
 type Crawler struct {
-	BoardName string
-	Proxy     string
+	Catalog string
+	Proxy   string
 }
 
 func (c *Crawler) Name() string {
-	switch c.BoardName {
-	case Cantonese:
-		return "rfa_x_cantonese"
-	case English:
-		return "rfa_x_english"
-	case Mandarin:
-		return "rfa"
-	default:
-		return "rfa"
-	}
+	return "rfa"
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	switch c.BoardName {
+	switch c.Catalog {
 	case Cantonese:
-		return c.rfa_x_cantonese()
+		return c.cantonese()
 	case English:
-		return c.rfa_x_english()
+		return c.english()
 	case Mandarin:
-		return c.rfa()
+		return c.mandarin()
 	default:
-		return c.rfa()
+		return c.all()
 	}
 }
 
-func (c *Crawler) rfa_x_cantonese() (*hot.Board, error) {
-	return c.rfaWithLanguage("cantonese")
+func (c *Crawler) all() (*hot.Board, error) {
+	board := hot.NewBoard(c.Name())
+	if b, err := c.cantonese(); err != nil {
+		return nil, err
+	} else {
+		for _, hot := range b.Hots {
+			board.Append0(hot)
+		}
+	}
+
+	if b, err := c.english(); err != nil {
+		return nil, err
+	} else {
+		for _, hot := range b.Hots {
+			board.Append0(hot)
+		}
+	}
+
+	if b, err := c.mandarin(); err != nil {
+		return nil, err
+	} else {
+		for _, hot := range b.Hots {
+			board.Append0(hot)
+		}
+	}
+	return board, nil
 }
 
-func (c *Crawler) rfa_x_english() (*hot.Board, error) {
-	return c.rfaWithLanguage("english")
+func (c *Crawler) cantonese() (*hot.Board, error) {
+	return c.withLanguage(Cantonese)
 }
 
-func (c *Crawler) rfa() (*hot.Board, error) {
-	return c.rfaWithLanguage("mandarin")
+func (c *Crawler) english() (*hot.Board, error) {
+	return c.withLanguage(English)
 }
 
-func (c *Crawler) rfaWithLanguage(language string) (*hot.Board, error) {
+func (c *Crawler) mandarin() (*hot.Board, error) {
+	return c.withLanguage(Mandarin)
+}
+
+func (c *Crawler) withLanguage(language string) (*hot.Board, error) {
 	client := &http.Client{}
 	if c.Proxy != "" {
 		if proxyUrl, err := url.Parse(c.Proxy); err == nil {
@@ -100,7 +119,8 @@ func (c *Crawler) rfaWithLanguage(language string) (*hot.Board, error) {
 			}
 			title := strings.TrimSpace(a.Text())
 			url := strings.TrimSpace(a.Attrs()["href"])
-			board.AppendTitleURL(title, url)
+			catalog := language
+			board.Append4(title, "", url, catalog)
 		}
 	}
 	return board, nil

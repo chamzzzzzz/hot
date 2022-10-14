@@ -8,7 +8,15 @@ import (
 	"strings"
 )
 
+const (
+	RenQi    = "renqi"
+	ZongHe   = "zonghe"
+	ShouCang = "shoucang"
+	Unknown  = "unknown"
+)
+
 type Crawler struct {
+	Catalog string
 }
 
 func (c *Crawler) Name() string {
@@ -17,7 +25,7 @@ func (c *Crawler) Name() string {
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://36kr.com/", nil)
+	req, err := http.NewRequest("GET", "https://36kr.com/hot-list/catalog", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,20 +48,39 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, a := range dom.FindAllStrict("a", "class", "hotlist-item-toptwo-title") {
-		p := a.FindStrict("p", "class", "ellipsis-2 weight-bold")
-		if p.Error != nil {
+	for i, div := range dom.FindAllStrict("div", "class", "list-section-wrapper") {
+		catalog := itocatalog(i)
+		if c.Catalog != "" && c.Catalog != catalog {
 			continue
 		}
-		title := strings.TrimSpace(p.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
-	}
 
-	for _, a := range dom.FindAllStrict("a", "class", "hotlist-item-other-title ellipsis-2 weight-bold") {
-		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+		for _, div := range div.FindAll("div", "class", "article-wrapper") {
+			a1 := div.FindStrict("a", "class", "article-item-title weight-bold")
+			if a1.Error != nil {
+				return nil, a1.Error
+			}
+			a2 := div.FindStrict("a", "class", "article-item-description ellipsis-2")
+			if a2.Error != nil {
+				return nil, a2.Error
+			}
+			title := strings.TrimSpace(a1.Text())
+			summary := strings.TrimSpace(a2.Text())
+			url := "https://36kr.com" + strings.TrimSpace(a1.Attrs()["href"])
+			board.Append4(title, summary, url, catalog)
+		}
 	}
 	return board, nil
+}
+
+func itocatalog(i int) string {
+	switch i {
+	case 0:
+		return RenQi
+	case 1:
+		return ZongHe
+	case 2:
+		return ShouCang
+	default:
+		return Unknown
+	}
 }
