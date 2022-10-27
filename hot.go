@@ -87,6 +87,10 @@ func (b *Board) AppendTitleURL(title, url string) *Hot {
 	return b.Append3(title, "", url)
 }
 
+func (b *Board) AppendTitleURLDate(title, url string, publishDate time.Time) *Hot {
+	return b.Append3x1(title, "", url, publishDate)
+}
+
 func (b *Board) Append5x2(title, summary, url, catalog, extra string, date, publishDate time.Time) *Hot {
 	hot := &Hot{
 		Title:       title,
