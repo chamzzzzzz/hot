@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/archiver/database"
+	"github.com/chamzzzzzz/hot/crawler/acfun"
 	"github.com/chamzzzzzz/hot/crawler/baidu"
 	"github.com/chamzzzzzz/hot/crawler/bbc"
 	"github.com/chamzzzzzz/hot/crawler/bilibili"
@@ -257,6 +258,7 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &thehill.Crawler{})
 	hc.crawlers = append(hc.crawlers, &yicai.Crawler{})
 	hc.crawlers = append(hc.crawlers, &iqiyi.Crawler{})
+	hc.crawlers = append(hc.crawlers, &acfun.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
