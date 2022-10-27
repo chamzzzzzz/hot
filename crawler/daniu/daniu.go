@@ -21,7 +21,7 @@ func (c *Crawler) Name() string {
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.daniu522.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today", nil)
+	req, err := http.NewRequest("GET", "https://www.daniu523.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.daniu523.com/" + strings.TrimSpace(a.Attrs()["href"])
 		date, err := time.ParseInLocation("2006-01-02 15:04", strings.TrimSpace(em.Text()), time.Local)
 		if err != nil {
 			return nil, err
