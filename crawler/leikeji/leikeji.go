@@ -54,7 +54,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		url := "https://www.leikeji.com" + strings.TrimSpace(a.Attrs()["href"])
 		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(div.Text()), time.Local)
 		if err != nil {
-			return nil, err
+			if strings.Contains(strings.TrimSpace(div.Text()), "小时") {
+				date = time.Now()
+			} else {
+				return nil, err
+			}
 		}
 		board.Append3x1(title, "", url, date)
 	}
