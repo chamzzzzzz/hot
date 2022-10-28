@@ -94,15 +94,19 @@ package {{.Name}}
 import (
 	{{- if .Json}}
 	"encoding/json"
-	{{- end}}
+	"fmt"
+	{{- else}}
 	"github.com/anaskhan96/soup"
+	{{- end}}
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
 	{{- if .Proxy}}
 	"net/url"
 	{{- end}}
+	{{- if not .Json}}
 	"strings"
+	{{- end}}
 )
 
 type Crawler struct {
