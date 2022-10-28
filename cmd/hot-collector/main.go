@@ -42,7 +42,6 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/gameres"
 	"github.com/chamzzzzzz/hot/crawler/gamersky"
 	"github.com/chamzzzzzz/hot/crawler/gelonghui"
-	"github.com/chamzzzzzz/hot/crawler/gitchat"
 	"github.com/chamzzzzzz/hot/crawler/github"
 	"github.com/chamzzzzzz/hot/crawler/globaltimes"
 	"github.com/chamzzzzzz/hot/crawler/guancha"
@@ -195,7 +194,6 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &cto51.Crawler{})
 	hc.crawlers = append(hc.crawlers, &gameres.Crawler{})
 	hc.crawlers = append(hc.crawlers, &investing.Crawler{})
-	hc.crawlers = append(hc.crawlers, &gitchat.Crawler{})
 	hc.crawlers = append(hc.crawlers, &cls.Crawler{})
 	hc.crawlers = append(hc.crawlers, &jin10.Crawler{})
 	hc.crawlers = append(hc.crawlers, &jqka10.Crawler{})
