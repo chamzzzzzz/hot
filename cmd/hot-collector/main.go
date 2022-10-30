@@ -123,12 +123,12 @@ import (
 	"github.com/robfig/cron/v3"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
 var (
-	defaultLogger = log.New(os.Stdout, "collector: ", log.Ldate|log.Lmicroseconds)
-	cronLogger    = log.New(os.Stdout, "collector-cron: ", log.Ldate|log.Lmicroseconds)
+	logger = log.New(os.Stdout, "collector: ", log.Ldate|log.Lmicroseconds)
 )
 
 type HotCollector struct {
@@ -292,7 +292,7 @@ func (hc *HotCollector) Start() error {
 		return err
 	}
 
-	logger := cron.VerbosePrintfLogger(cronLogger)
+	logger := cron.VerbosePrintfLogger(log.New(os.Stdout, "collector-cron: ", log.Ldate|log.Lmicroseconds))
 	c := cron.New(
 		cron.WithLocation(location),
 		cron.WithLogger(logger),
@@ -305,28 +305,36 @@ func (hc *HotCollector) Start() error {
 }
 
 func (hc *HotCollector) Run() {
+	t1 := time.Now()
+	var wg sync.WaitGroup
 	for _, crawler := range hc.crawlers {
-		board, err := crawler.Crawl()
-		if err != nil {
-			defaultLogger.Printf("crawl, error='%s', crawler=%s\n", err, crawler.Name())
-			continue
-		}
-		defaultLogger.Printf("crawl, crawler=%s, board=%s, count=%d\n", crawler.Name(), board.Name, len(board.Hots))
+		wg.Add(1)
+		go func(crawler hot.Crawler) {
+			defer wg.Done()
+			board, err := crawler.Crawl()
+			if err != nil {
+				logger.Printf("crawl, error='%s', crawler=%s\n", err, crawler.Name())
+				return
+			}
+			logger.Printf("crawl, crawler=%s, board=%s, count=%d\n", crawler.Name(), board.Name, len(board.Hots))
 
-		var archived = 0
-		if archived, err = hc.archiver.Archive(board); err != nil {
-			defaultLogger.Printf("archive, error='%s', archiver=%s, board=%s, count=%d, archived=%d\n", err, hc.archiver.Name(), board.Name, len(board.Hots), archived)
-			continue
-		}
-		defaultLogger.Printf("archive, archiver=%s, board=%s, count=%d, arvhiced=%d\n", hc.archiver.Name(), board.Name, len(board.Hots), archived)
+			var archived = 0
+			if archived, err = hc.archiver.Archive(board); err != nil {
+				logger.Printf("archive, error='%s', archiver=%s, board=%s, count=%d, archived=%d\n", err, hc.archiver.Name(), board.Name, len(board.Hots), archived)
+				return
+			}
+			logger.Printf("archive, archiver=%s, board=%s, count=%d, arvhiced=%d\n", hc.archiver.Name(), board.Name, len(board.Hots), archived)
+		}(crawler)
 	}
+	wg.Wait()
+	logger.Printf("run, used=%v", time.Since(t1))
 }
 
 func main() {
 	hc := &HotCollector{}
 	err := hc.Start()
 	if err != nil {
-		defaultLogger.Printf("start, error='%s'\n", err)
+		logger.Printf("start, error='%s'\n", err)
 		os.Exit(1)
 	}
 }
