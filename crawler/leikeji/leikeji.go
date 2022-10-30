@@ -5,6 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,15 +53,37 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Attrs()["title"])
 		url := "https://www.leikeji.com" + strings.TrimSpace(a.Attrs()["href"])
-		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(div.Text()), time.Local)
+		date, err := strtotime(strings.TrimSpace(div.Text()))
 		if err != nil {
-			if strings.Contains(strings.TrimSpace(div.Text()), "小时") {
-				date = time.Now()
-			} else {
-				return nil, err
-			}
+			return nil, err
 		}
 		board.Append3x1(title, "", url, date)
 	}
 	return board, nil
+}
+
+func strtotime(str string) (time.Time, error) {
+	if date, err := time.ParseInLocation("2006-01-02", str, time.Local); err == nil {
+		return date, nil
+	} else {
+		if strings.Contains(str, "小时前") {
+			str = strings.TrimSpace(strings.Trim(str, "小时前"))
+			if hour, err := strconv.Atoi(str); err != nil {
+				return date, err
+			} else {
+				date = time.Now().Add(time.Hour * time.Duration(-hour))
+				return date, nil
+			}
+		} else if strings.Contains(str, "天前") {
+			str = strings.TrimSpace(strings.Trim(str, "天前"))
+			if day, err := strconv.Atoi(str); err != nil {
+				return date, err
+			} else {
+				date = time.Now().Add(time.Hour * 24 * time.Duration(-day))
+				return date, nil
+			}
+		} else {
+			return date, err
+		}
+	}
 }
