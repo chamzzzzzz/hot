@@ -69,7 +69,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 		title := strings.TrimSpace(a.Text())
 		url := "https://www.daniu523.com/" + strings.TrimSpace(a.Attrs()["href"])
-		date, err := time.ParseInLocation("2006-01-02 15:04", strings.TrimSpace(em.Text()), time.Local)
+		date, err := time.ParseInLocation("2006-1-2 15:04", strings.TrimSpace(em.Text()), time.Local)
 		if err != nil {
 			return nil, err
 		}
