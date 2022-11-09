@@ -122,6 +122,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/zaobao"
 	"github.com/chamzzzzzz/hot/crawler/zhiguf"
 	"github.com/chamzzzzzz/hot/crawler/zhihu"
+	"github.com/chamzzzzzz/hot/crawler/zol"
 	"github.com/robfig/cron/v3"
 	"log"
 	"os"
@@ -281,6 +282,7 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &taptap.Crawler{})
 	hc.crawlers = append(hc.crawlers, &maoyan.Crawler{})
 	hc.crawlers = append(hc.crawlers, &pudn.Crawler{})
+	hc.crawlers = append(hc.crawlers, &zol.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
