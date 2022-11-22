@@ -46,10 +46,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			continue
 		}
 		title := strings.TrimSpace(h2.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
-		if strings.HasPrefix(url, "/news/") {
-			url = "https://www.thecover.cn" + url
-		}
+		url := "https://www.thecover.cn" + strings.TrimSpace(a.Attrs()["href"])
 		board.AppendTitleURL(title, url)
 	}
 	return board, nil
