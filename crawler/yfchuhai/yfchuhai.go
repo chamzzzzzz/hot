@@ -5,6 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,12 +53,56 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(h2.Text())
 		url := "https://www.yfchuhai.com" + strings.TrimSpace(a.Attrs()["href"])
-		date, err := time.ParseInLocation("01-02 15:04", strings.TrimSpace(span.Text()), time.Local)
+		date, err := strtotime(strings.TrimSpace(span.Text()))
 		if err != nil {
 			return nil, err
 		}
-		date = date.AddDate(time.Now().Year(), 0, 0)
 		board.AppendTitleURLDate(title, url, date)
 	}
 	return board, nil
+}
+
+func strtotime(str string) (time.Time, error) {
+	if date, err := time.ParseInLocation("01-02 15:04", str, time.Local); err == nil {
+		date = date.AddDate(time.Now().Year(), 0, 0)
+		return date, nil
+	} else {
+		if strings.Contains(str, "小时前") {
+			str = strings.TrimSpace(strings.Trim(str, "小时前"))
+			if hour, err := strconv.Atoi(str); err != nil {
+				return date, err
+			} else {
+				date = time.Now().Add(time.Hour * time.Duration(-hour))
+				return date, nil
+			}
+		} else if strings.Contains(str, "天前") {
+			str = strings.TrimSpace(strings.Trim(str, "天前"))
+			if day, err := strconv.Atoi(str); err != nil {
+				return date, err
+			} else {
+				date = time.Now().Add(time.Hour * 24 * time.Duration(-day))
+				return date, nil
+			}
+		} else if strings.Contains(str, "前天") {
+			str = strings.TrimSpace(strings.Trim(str, "前天"))
+			if date, err := time.ParseInLocation("15:04", str, time.Local); err != nil {
+				return date, err
+			} else {
+				date = date.AddDate(time.Now().Year(), int(time.Now().Month())-1, time.Now().Day()-1)
+				date = date.Add(time.Hour * 24 * time.Duration(-2))
+				return date, nil
+			}
+		} else if strings.Contains(str, "昨天") {
+			str = strings.TrimSpace(strings.Trim(str, "昨天"))
+			if date, err := time.ParseInLocation("15:04", str, time.Local); err != nil {
+				return date, err
+			} else {
+				date = date.AddDate(time.Now().Year(), int(time.Now().Month())-1, time.Now().Day()-1)
+				date = date.Add(time.Hour * 24 * time.Duration(-1))
+				return date, nil
+			}
+		} else {
+			return date, err
+		}
+	}
 }
