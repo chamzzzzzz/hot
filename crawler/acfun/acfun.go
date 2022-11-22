@@ -1,13 +1,13 @@
 package acfun
 
 import (
-	"bytes"
 	"encoding/json"
-	"github.com/anaskhan96/soup"
+	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Crawler struct {
@@ -19,7 +19,7 @@ func (c *Crawler) Name() string {
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.acfun.cn/?pagelets=pagelet_header&ajaxpipe=1", nil)
+	req, err := http.NewRequest("GET", "https://www.acfun.cn/rest/pc-direct/rank/channel?channelId=&subChannelId=&rankLimit=30&rankPeriod=DAY", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,36 +37,33 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	body := &body{}
-	if err := json.Unmarshal(bytes.TrimSuffix(data, []byte(`/*<!-- fetch-stream -->*/`)), body); err != nil {
+	if err := json.Unmarshal(data, body); err != nil {
+		fmt.Println(string(data))
 		return nil, err
-	}
-
-	dom := soup.HTMLParse(body.HTML)
-	if dom.Error != nil {
-		return nil, dom.Error
+	} else if body.Result != 0 {
+		return nil, fmt.Errorf("body result: %d", body.Result)
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "class", "search-result")
-	if div.Error != nil {
-		return nil, div.Error
-	}
-	for _, li := range div.FindAllStrict("li") {
-		a := li.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
-		}
-		b := a.Find("b")
-		if b.Error != nil {
-			return nil, b.Error
-		}
-		title := strings.TrimSpace(b.Text())
-		url := "https://www.acfun.cn" + strings.TrimSpace(a.Attrs()["href"])
-		board.AppendTitleURL(title, url)
+	for _, data := range body.RankList {
+		title := strings.TrimSpace(data.ContentTitle)
+		summary := strings.TrimSpace(data.ContentDesc)
+		url := strings.TrimSpace(data.ShareURL)
+		date := time.UnixMilli(data.CreateTimeMillis)
+		board.Append3x1(title, summary, url, date)
 	}
 	return board, nil
 }
 
 type body struct {
-	HTML string `json:"html"`
+	Result   int `json:"result"`
+	RankList []struct {
+		ContentID        int    `json:"contentId"`
+		ContributeTime   int64  `json:"contributeTime"`
+		ContentTitle     string `json:"contentTitle"`
+		ContentDesc      string `json:"contentDesc"`
+		CreateTimeMillis int64  `json:"createTimeMillis"`
+		ShareURL         string `json:"shareUrl"`
+		Title            string `json:"title"`
+	} `json:"rankList"`
 }
