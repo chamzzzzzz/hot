@@ -9,7 +9,7 @@ import (
 	"regexp"
 )
 
-var re = regexp.MustCompile(`//searchapi\.eastmoney\.com/api/hotkeyword/get\?count=20&token=([A-Z0-9]+)`)
+var re = regexp.MustCompile(`//searchadapter\.eastmoney\.com/api/hotkeyword/get\?count=20&token=([A-Z0-9]+)`)
 
 type Crawler struct {
 }
