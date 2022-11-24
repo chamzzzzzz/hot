@@ -102,9 +102,9 @@ func (c *Crawler) updatecookie() error {
 func indextocatalog(i int) string {
 	switch i {
 	case 0:
-		return News
-	case 1:
 		return Actor
+	case 1:
+		return News
 	default:
 		return Unknown
 	}
