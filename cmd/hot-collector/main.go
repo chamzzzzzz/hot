@@ -5,6 +5,7 @@ import (
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/archiver/database"
 	"github.com/chamzzzzzz/hot/crawler/acfun"
+	"github.com/chamzzzzzz/hot/crawler/ali213"
 	"github.com/chamzzzzzz/hot/crawler/baidu"
 	"github.com/chamzzzzzz/hot/crawler/baijing"
 	"github.com/chamzzzzzz/hot/crawler/bbc"
@@ -31,6 +32,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/douban"
 	"github.com/chamzzzzzz/hot/crawler/douyin"
 	"github.com/chamzzzzzz/hot/crawler/dxy"
+	"github.com/chamzzzzzz/hot/crawler/dzwww"
 	"github.com/chamzzzzzz/hot/crawler/eastmoney"
 	"github.com/chamzzzzzz/hot/crawler/economist"
 	"github.com/chamzzzzzz/hot/crawler/eeo"
@@ -43,6 +45,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/gamersky"
 	"github.com/chamzzzzzz/hot/crawler/gelonghui"
 	"github.com/chamzzzzzz/hot/crawler/github"
+	"github.com/chamzzzzzz/hot/crawler/gk99"
 	"github.com/chamzzzzzz/hot/crawler/globaltimes"
 	"github.com/chamzzzzzz/hot/crawler/guancha"
 	"github.com/chamzzzzzz/hot/crawler/haokan"
@@ -72,9 +75,11 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/lanjinger"
 	"github.com/chamzzzzzz/hot/crawler/leikeji"
 	"github.com/chamzzzzzz/hot/crawler/maoyan"
+	"github.com/chamzzzzzz/hot/crawler/mddcloud"
 	"github.com/chamzzzzzz/hot/crawler/mydrivers"
 	"github.com/chamzzzzzz/hot/crawler/netease"
 	"github.com/chamzzzzzz/hot/crawler/nowcoder"
+	"github.com/chamzzzzzz/hot/crawler/nppa"
 	"github.com/chamzzzzzz/hot/crawler/nytimes"
 	"github.com/chamzzzzzz/hot/crawler/odaily"
 	"github.com/chamzzzzzz/hot/crawler/oschina"
@@ -83,6 +88,8 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/pearvideo"
 	"github.com/chamzzzzzz/hot/crawler/pojie52"
 	"github.com/chamzzzzzz/hot/crawler/pudn"
+	"github.com/chamzzzzzz/hot/crawler/qcc"
+	"github.com/chamzzzzzz/hot/crawler/qixin"
 	"github.com/chamzzzzzz/hot/crawler/qqnews"
 	"github.com/chamzzzzzz/hot/crawler/qqvideo"
 	"github.com/chamzzzzzz/hot/crawler/readhub"
@@ -103,6 +110,7 @@ import (
 	"github.com/chamzzzzzz/hot/crawler/thehill"
 	"github.com/chamzzzzzz/hot/crawler/thepaper"
 	"github.com/chamzzzzzz/hot/crawler/tianya"
+	"github.com/chamzzzzzz/hot/crawler/tianyancha"
 	"github.com/chamzzzzzz/hot/crawler/tieba"
 	"github.com/chamzzzzzz/hot/crawler/timecom"
 	"github.com/chamzzzzzz/hot/crawler/toutiao"
@@ -285,6 +293,14 @@ func (hc *HotCollector) Start() error {
 	hc.crawlers = append(hc.crawlers, &pudn.Crawler{})
 	hc.crawlers = append(hc.crawlers, &zol.Crawler{})
 	hc.crawlers = append(hc.crawlers, &pcauto.Crawler{})
+	hc.crawlers = append(hc.crawlers, &mddcloud.Crawler{})
+	hc.crawlers = append(hc.crawlers, &dzwww.Crawler{})
+	hc.crawlers = append(hc.crawlers, &nppa.Crawler{})
+	hc.crawlers = append(hc.crawlers, &qcc.Crawler{})
+	hc.crawlers = append(hc.crawlers, &qixin.Crawler{})
+	hc.crawlers = append(hc.crawlers, &tianyancha.Crawler{})
+	hc.crawlers = append(hc.crawlers, &ali213.Crawler{})
+	hc.crawlers = append(hc.crawlers, &gk99.Crawler{})
 
 	spec := os.Getenv("HOT_COLLECT_CRON_SPEC")
 	if spec == "" {
