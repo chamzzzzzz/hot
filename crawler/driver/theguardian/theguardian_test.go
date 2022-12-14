@@ -2,12 +2,11 @@ package theguardian
 
 import (
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"os"
 	"testing"
 )
 
 func TestCrawl(t *testing.T) {
-	c := Crawler{Option: driver.Option{Proxy: os.Getenv("HOT_CRAWLER_TEST_PROXY")}}
+	c := Crawler{Option: driver.NewTestOptionFromEnv()}
 	if board, err := c.Crawl(); err != nil {
 		t.Error(err)
 	} else {

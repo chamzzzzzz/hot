@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"net/url"
+	"os"
 	"sort"
 	"sync"
 )
@@ -15,6 +16,13 @@ type Option struct {
 	Cookie     string
 	Catalog    string
 	Raw        string
+}
+
+func NewTestOptionFromEnv() (option Option) {
+	option.Proxy = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_PROXY")
+	option.Cookie = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_COOKIE")
+	option.Cookie = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_CATALOG")
+	return
 }
 
 func ParseOption(raw string) (*Option, error) {

@@ -14,7 +14,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/chiphell"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/chunfengxing"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cls"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/cnbeta"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cnblogs"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cninfo"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/credit51"

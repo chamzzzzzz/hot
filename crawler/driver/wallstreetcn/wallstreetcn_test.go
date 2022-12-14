@@ -1,11 +1,12 @@
 package wallstreetcn
 
 import (
+	"github.com/chamzzzzzz/hot/crawler/driver"
 	"testing"
 )
 
 func TestCrawl(t *testing.T) {
-	c := Crawler{}
+	c := Crawler{Option: driver.NewTestOptionFromEnv()}
 	if board, err := c.Crawl(); err != nil {
 		t.Error(err)
 	} else {
