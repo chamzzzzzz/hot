@@ -1,12 +1,9 @@
 package dzwww
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strings"
 )
 
@@ -21,7 +18,9 @@ var act = map[string]string{
 }
 
 const (
-	DriverName = "dzwww"
+	DriverName  = "dzwww"
+	ProxySwitch = false
+	URL         = "https://w.dzwww.com/?act="
 )
 
 type Driver struct {
@@ -67,27 +66,10 @@ func (c *Crawler) all() (*hot.Board, error) {
 }
 
 func (c *Crawler) withCatalog(catalog string, board *hot.Board) (*hot.Board, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://w.dzwww.com/?act=%s", act[catalog]), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-	req.Header.Set("Referer", "https://w.dzwww.com/")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	var body []body
-	if err := json.Unmarshal(data, &body); err != nil {
+	option := httputil.NewOption(c.Option, ProxySwitch)
+	option.Header.Set("Referer", "https://w.dzwww.com/")
+	if err := httputil.Request("GET", URL+act[catalog], nil, "json", &body, option); err != nil {
 		return nil, err
 	}
 

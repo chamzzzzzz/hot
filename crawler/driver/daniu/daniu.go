@@ -2,19 +2,17 @@ package daniu
 
 import (
 	"fmt"
-	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strings"
 	"time"
 )
 
 const (
-	DriverName = "daniu"
+	DriverName  = "daniu"
+	ProxySwitch = false
+	URL         = "https://www.daniu523.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
 )
 
 type Driver struct {
@@ -41,27 +39,11 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.daniu523.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today", nil)
-	if err != nil {
+	dom := &httputil.DOM{}
+	option := httputil.NewOption(c.Option, ProxySwitch)
+	option.ContentEncoding = "gbk"
+	if err := httputil.Request("GET", URL, nil, "dom", dom, option); err != nil {
 		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder()))
-	if err != nil {
-		return nil, err
-	}
-
-	dom := soup.HTMLParse(string(data))
-	if dom.Error != nil {
-		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())

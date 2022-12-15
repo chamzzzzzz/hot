@@ -3,16 +3,16 @@ package csdn
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strings"
 )
 
 const (
-	DriverName = "csdn"
+	DriverName  = "csdn"
+	ProxySwitch = false
+	URL         = "https://www.csdn.net"
 )
 
 type Driver struct {
@@ -39,37 +39,19 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.csdn.net", nil)
-	if err != nil {
+	dom := &httputil.DOM{}
+	if err := httputil.Request("GET", URL, nil, "dom", dom, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
 		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	dom := soup.HTMLParse(string(data))
-	if dom.Error != nil {
-		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
 	for _, script := range dom.FindAllStrict("script") {
-		_body := strings.TrimSpace(script.Text())
-		if strings.HasPrefix(_body, "window.__INITIAL_STATE__= ") {
-			_body = strings.TrimPrefix(_body, "window.__INITIAL_STATE__= ")
-			_body = strings.Trim(_body, ";")
+		text := strings.TrimSpace(script.Text())
+		if strings.HasPrefix(text, "window.__INITIAL_STATE__= ") {
+			text = strings.TrimPrefix(text, "window.__INITIAL_STATE__= ")
+			text = strings.Trim(text, ";")
 			body := &body{}
-			if err := json.Unmarshal([]byte(_body), body); err != nil {
+			if err := json.Unmarshal([]byte(text), body); err != nil {
 				return nil, err
 			}
 			for _, headline := range body.PageData.Data.WwwHeadlines {

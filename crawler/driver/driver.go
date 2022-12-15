@@ -10,12 +10,13 @@ import (
 )
 
 type Option struct {
-	ID         string
-	DriverName string
-	Proxy      string
-	Cookie     string
-	Catalog    string
-	Raw        string
+	ID          string
+	DriverName  string
+	ProxySwitch string
+	Proxy       string
+	Cookie      string
+	Catalog     string
+	Raw         string
 }
 
 func NewTestOptionFromEnv() (option Option) {
@@ -31,12 +32,13 @@ func ParseOption(raw string) (*Option, error) {
 		return nil, err
 	}
 	o := &Option{
-		ID:         v.Get("id"),
-		DriverName: v.Get("drivername"),
-		Proxy:      v.Get("proxy"),
-		Cookie:     v.Get("cookie"),
-		Catalog:    v.Get("catalog"),
-		Raw:        raw,
+		ID:          v.Get("id"),
+		DriverName:  v.Get("drivername"),
+		Proxy:       v.Get("proxy"),
+		ProxySwitch: v.Get("proxyswitch"),
+		Cookie:      v.Get("cookie"),
+		Catalog:     v.Get("catalog"),
+		Raw:         raw,
 	}
 	if o.ID == "" {
 		o.ID = o.DriverName
@@ -54,6 +56,9 @@ func (o *Option) Encode() string {
 	}
 	if o.DriverName != "" {
 		v.Set("drivername", o.DriverName)
+	}
+	if o.ProxySwitch != "" {
+		v.Set("proxyswitch", o.ProxySwitch)
 	}
 	if o.Proxy != "" {
 		v.Set("proxy", o.Proxy)

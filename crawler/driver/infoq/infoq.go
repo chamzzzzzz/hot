@@ -2,16 +2,16 @@ package infoq
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
-	DriverName = "infoq"
+	DriverName  = "infoq"
+	ProxySwitch = false
+	URL         = "https://www.infoq.cn/public/v1/article/getHotList"
 )
 
 type Driver struct {
@@ -38,28 +38,11 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", "https://www.infoq.cn/public/v1/article/getHotList", bytes.NewReader([]byte(`{"score":null,"type":1,"size":30}`)))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-	req.Header.Set("Origin", "https://www.infoq.cn")
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	body := &body{}
-	if err := json.Unmarshal(data, body); err != nil {
+	option := httputil.NewOption(c.Option, ProxySwitch)
+	option.Header.Set("Origin", "https://www.infoq.cn")
+	option.Header.Set("Content-Type", "application/json")
+	if err := httputil.Request("POST", URL, bytes.NewReader([]byte(`{"score":null,"type":1,"size":30}`)), "json", body, option); err != nil {
 		return nil, err
 	} else if body.Code != 0 {
 		return nil, fmt.Errorf("body code: %d", body.Code)

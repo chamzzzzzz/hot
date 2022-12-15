@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	DriverName = "sohu"
+	DriverName  = "sohu"
+	ProxySwitch = false
 )
 
 type Driver struct {

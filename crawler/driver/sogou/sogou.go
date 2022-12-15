@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
-	DriverName = "sogou"
+	DriverName  = "sogou"
+	ProxySwitch = false
+	URL         = "https://www.sogou.com/suggnew/hotwords"
 )
 
 type Driver struct {
@@ -36,20 +37,7 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.sogou.com/suggnew/hotwords", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := httputil.RequestData("GET", URL, nil, httputil.NewOption(c.Option, ProxySwitch))
 	if err != nil {
 		return nil, err
 	}

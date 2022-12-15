@@ -1,16 +1,16 @@
 package jinse
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
-	DriverName = "jinse"
+	DriverName  = "jinse"
+	ProxySwitch = false
+	URL         = "https://newapi.jinse.com/noah/v1/"
 )
 
 type Driver struct {
@@ -41,11 +41,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 }
 
 func (c *Crawler) jinse_x_search() (*hot.Board, error) {
-	return c.jinseWithURL("https://newapi.jinse.com/noah/v1/hot-search")
+	return c.jinseWithURL(URL + "hot-search")
 }
 
 func (c *Crawler) jinse_x_article() (*hot.Board, error) {
-	return c.jinseWithURL("https://newapi.jinse.com/noah/v1/articles/hot?hour_diff=24")
+	return c.jinseWithURL(URL + "articles/hot?hour_diff=24")
 }
 
 func (c *Crawler) jinse() (*hot.Board, error) {
@@ -65,27 +65,9 @@ func (c *Crawler) jinse() (*hot.Board, error) {
 	return board, nil
 }
 
-func (c *Crawler) jinseWithURL(URL string) (*hot.Board, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", URL, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
+func (c *Crawler) jinseWithURL(url string) (*hot.Board, error) {
 	body := &body{}
-	if err := json.Unmarshal(data, body); err != nil {
+	if err := httputil.Request("GET", url, nil, "json", body, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
 		return nil, err
 	} else if body.StatusCode != 0 {
 		return nil, fmt.Errorf("body status_code: %d", body.StatusCode)

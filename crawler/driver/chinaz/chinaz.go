@@ -1,16 +1,16 @@
 package chinaz
 
 import (
-	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strings"
 )
 
 const (
-	DriverName = "chinaz"
+	DriverName  = "chinaz"
+	ProxySwitch = false
+	URL         = "https://www.chinaz.com/"
 )
 
 type Driver struct {
@@ -38,33 +38,15 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	err := c.updatecookie()
-	if err != nil {
+	if err := c.updatecookie(); err != nil {
 		return nil, err
 	}
 
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://www.chinaz.com/", nil)
-	if err != nil {
+	dom := &httputil.DOM{}
+	option := httputil.NewOption(c.Option, ProxySwitch)
+	option.Header.Set("Cookie", c.cookie)
+	if err := httputil.Request("GET", URL, nil, "dom", dom, option); err != nil {
 		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-	req.Header.Set("Cookie", c.cookie)
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	dom := soup.HTMLParse(string(data))
-	if dom.Error != nil {
-		return nil, dom.Error
 	}
 
 	board := hot.NewBoard(c.Name())
@@ -81,30 +63,5 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 }
 
 func (c *Crawler) updatecookie() error {
-	if c.cookie != "" {
-		return nil
-	}
-
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-	req, err := http.NewRequest("GET", "https://www.chinaz.com/", nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	for _, cookie := range res.Cookies() {
-		req.AddCookie(cookie)
-	}
-	c.cookie = req.Header.Get("Cookie")
-	return nil
+	return httputil.UpdateCookie("GET", URL, nil, httputil.NewOption(c.Option, ProxySwitch), &c.cookie)
 }

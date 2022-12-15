@@ -1,17 +1,16 @@
 package nytimes
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
-	"io/ioutil"
-	"net/http"
-	"net/url"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
-	DriverName = "nytimes"
+	DriverName  = "nytimes"
+	ProxySwitch = true
+	URL         = "https://cn.nytimes.com/async/mostviewed/all/?lang=zh-hans"
 )
 
 type Driver struct {
@@ -38,36 +37,11 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	client := &http.Client{}
-	if c.Option.Proxy != "" {
-		if proxyUrl, err := url.Parse(c.Option.Proxy); err == nil {
-			client.Transport = &http.Transport{
-				Proxy: http.ProxyURL(proxyUrl),
-			}
-		}
-	}
-
-	req, err := http.NewRequest("GET", "https://cn.nytimes.com/async/mostviewed/all/?lang=zh-hans", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	body := &body{}
-	if err := json.Unmarshal(data, body); err != nil {
+	if err := httputil.Request("GET", URL, nil, "json", body, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
 		return nil, err
-	} else if body.Code != 0 {
+	}
+	if body.Code != 0 {
 		return nil, fmt.Errorf("body code: %d", body.Code)
 	}
 
