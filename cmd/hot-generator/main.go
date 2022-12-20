@@ -13,11 +13,11 @@ var (
 )
 
 type Option struct {
-	Name      string
-	UserAgent string
-	Proxy     bool
-	Json      bool
-	Backtick  string
+	Name     string
+	Proxy    bool
+	Json     bool
+	XML      bool
+	Backtick string
 }
 
 func main() {
@@ -33,12 +33,6 @@ func main() {
 				Value:       "hg",
 				Destination: &o.Name,
 			},
-			&cli.StringFlag{
-				Name:        "useragent",
-				Value:       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36",
-				Usage:       "useragent",
-				Destination: &o.UserAgent,
-			},
 			&cli.BoolFlag{
 				Name:        "proxy",
 				Value:       false,
@@ -51,20 +45,26 @@ func main() {
 				Usage:       "json response",
 				Destination: &o.Json,
 			},
+			&cli.BoolFlag{
+				Name:        "xml",
+				Value:       false,
+				Usage:       "xml response",
+				Destination: &o.XML,
+			},
 		},
 		Action: func(c *cli.Context) error {
-			err := os.Mkdir(filepath.Join("crawler", o.Name), 0750)
+			err := os.Mkdir(filepath.Join("crawler", "driver", o.Name), 0750)
 			if err != nil && !os.IsExist(err) {
 				logger.Printf("generate package dir, error='%s', crawler=%s", err, o.Name)
 				return err
 			}
-			f1, err := os.Create(filepath.Join("crawler", o.Name, o.Name) + ".go")
+			f1, err := os.Create(filepath.Join("crawler", "driver", o.Name, o.Name) + ".go")
 			if err != nil {
 				logger.Printf("generate main code, error='%s', crawler=%s", err, o.Name)
 				return err
 			}
 			defer f1.Close()
-			f2, err := os.Create(filepath.Join("crawler", o.Name, o.Name) + "_test.go")
+			f2, err := os.Create(filepath.Join("crawler", "driver", o.Name, o.Name) + "_test.go")
 			if err != nil {
 				logger.Printf("generate test code, error='%s', crawler=%s", err, o.Name)
 				return err
@@ -92,84 +92,70 @@ var sources = template.Must(template.New("sources").Parse(`
 package {{.Name}}
 
 import (
-	{{- if .Json}}
-	"encoding/json"
-	"fmt"
-	{{- else}}
-	"github.com/anaskhan96/soup"
-	{{- end}}
 	"github.com/chamzzzzzz/hot"
-	"io/ioutil"
-	"net/http"
-	{{- if .Proxy}}
-	"net/url"
-	{{- end}}
-	{{- if not .Json}}
+	"github.com/chamzzzzzz/hot/crawler/driver"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strings"
-	{{- end}}
 )
 
+const (
+	DriverName  = "{{.Name}}"
+	ProxySwitch = false
+	URL         = "https://www.{{.Name}}.com"
+)
+
+type Driver struct {
+}
+
+func (driver *Driver) Open(option driver.Option) (driver.Crawler, error) {
+	return &Crawler{Option: option}, nil
+}
+
+func init() {
+	driver.Register(DriverName, &Driver{})
+}
+
 type Crawler struct {
+	Option driver.Option
+}
+
+func (c *Crawler) Driver() driver.Driver {
+	return &Driver{}
 }
 
 func (c *Crawler) Name() string {
-	return "{{.Name}}"
+	return DriverName
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	client := &http.Client{}
-{{- if .Proxy}}
-	if c.Proxy != "" {
-		if proxyUrl, err := url.Parse(c.Proxy); err == nil {
-			client.Transport = &http.Transport{
-				Proxy: http.ProxyURL(proxyUrl),
-			}
-		}
-	}{{"\n"}}
-{{- end}}
-	req, err := http.NewRequest("GET", "https://www.{{.Name}}.com", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("User-Agent", "{{.UserAgent}}")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	data, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
 {{- if .Json}}
-
 	body := &body{}
-	if err := json.Unmarshal(data, body); err != nil {
+	if err := httputil.Request("GET", URL, nil, "json", body, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
 		return nil, err
-	} else if body.Code != "0" {
-		return nil, fmt.Errorf("body code: %s", body.Code)
 	}
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.AppendTitleURL(data.Title, data.URL)
+		board.AppendTitleURL(strings.TrimSpace(data.Title), strings.TrimSpace((data.URL)))
 	}
-{{- else}}
-
-	dom := soup.HTMLParse(string(data))
-	if dom.Error != nil {
-		return nil, dom.Error
+{{- else if .XML}}
+	body := &body{}
+	if err := httputil.Request("GET", URL, nil, "xml", body, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
+		return nil, err
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "class", "hot")
-	if div.Error != nil {
-		return nil, div.Error
+	for _, data := range body.Data {
+		board.AppendTitleURL(strings.TrimSpace(data.Title), strings.TrimSpace((data.URL)))
 	}
-	for _, a := range div.FindAllStrict("a") {
+{{- else}}
+	dom := &httputil.DOM{}
+	if err := httputil.Request("GET", URL, nil, "dom", dom, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
+		return nil, err
+	}
+
+	board := hot.NewBoard(c.Name())
+	for _, a := range dom.FindAllStrict("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Attrs()["href"])
 		board.AppendTitleURL(title, url)
@@ -180,12 +166,30 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 {{- if .Json}}
 
 type body struct {
-	Code    string {{.Backtick}}json:"code"{{.Backtick}}
+	Code    int {{.Backtick}}json:"code"{{.Backtick}}
 	Message string {{.Backtick}}json:"message"{{.Backtick}}
 	Data    []struct {
 		Title string {{.Backtick}}json:"title"{{.Backtick}}
 		URL   string {{.Backtick}}json:"url"{{.Backtick}}
 	} {{.Backtick}}json:"data"{{.Backtick}}
+}
+
+func (body *body) NormalizedCode() int {
+	return body.Code
+}
+{{- else if .XML}}
+
+type body struct {
+	Code    int {{.Backtick}}xml:"code"{{.Backtick}}
+	Message string {{.Backtick}}xml:"message"{{.Backtick}}
+	Data    []struct {
+		Title string {{.Backtick}}xml:"title"{{.Backtick}}
+		URL   string {{.Backtick}}xml:"url"{{.Backtick}}
+	} {{.Backtick}}xml:"data"{{.Backtick}}
+}
+
+func (body *body) NormalizedCode() int {
+	return body.Code
 }
 {{- end}}
 {{end}}
@@ -194,20 +198,12 @@ type body struct {
 package {{.Name}}
 
 import (
-	{{- if .Proxy}}
-	"os"
-	{{- end}}
+	"github.com/chamzzzzzz/hot/crawler/driver"
 	"testing"
 )
 
 func TestCrawl(t *testing.T) {
-	{{- if .Proxy}}
-	c := Crawler{
-		Proxy: os.Getenv("HOT_CRAWLER_TEST_PROXY"),
-	}
-	{{- else}}
-	c := Crawler{}
-	{{- end}}
+	c := Crawler{Option: driver.NewTestOptionFromEnv()}
 	if board, err := c.Crawl(); err != nil {
 		t.Error(err)
 	} else {

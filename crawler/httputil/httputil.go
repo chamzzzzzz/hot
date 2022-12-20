@@ -104,6 +104,11 @@ func Request(method, url string, body io.Reader, unmarshalmethod string, unmarsh
 	default:
 		return fmt.Errorf("no support unmarshal method:%s", unmarshalmethod)
 	}
+	if normalizer, ok := unmarshalbody.(ResponseBodyNormalizer); ok {
+		if code := normalizer.NormalizedCode(); code != 0 {
+			return fmt.Errorf("normalized code: %d", code)
+		}
+	}
 	return nil
 }
 
@@ -166,4 +171,8 @@ func UpdateCookie(method, url string, body io.Reader, option *Option, cookie *st
 
 type DOM struct {
 	soup.Root
+}
+
+type ResponseBodyNormalizer interface {
+	NormalizedCode() int
 }
