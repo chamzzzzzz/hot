@@ -20,6 +20,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cnbeta"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cnblogs"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cninfo"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/cnitpm"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/credit51"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/csdn"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cto51"
