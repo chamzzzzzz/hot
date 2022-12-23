@@ -1,6 +1,7 @@
 package httputil
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -17,6 +18,7 @@ type Option struct {
 	Proxy           string
 	Header          http.Header
 	ContentEncoding string
+	TrimPrefix      string
 }
 
 func NewOption(option driver.Option, proxyswitch bool) *Option {
@@ -82,13 +84,22 @@ func Request(method, url string, body io.Reader, unmarshalmethod string, unmarsh
 		return err
 	}
 
+	if option.TrimPrefix != "" {
+		data = bytes.TrimPrefix(data, []byte(option.TrimPrefix))
+	}
+
 	switch unmarshalmethod {
 	case "json":
 		if err := json.Unmarshal(data, unmarshalbody); err != nil {
+			fmt.Println(string(data)[:100])
 			return err
 		}
 	case "xml":
-		if err := xml.Unmarshal(data, unmarshalbody); err != nil {
+		decoder := xml.NewDecoder(bytes.NewReader(data))
+		decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+			return transform.NewReader(input, simplifiedchinese.GBK.NewDecoder()), nil
+		}
+		if err := decoder.Decode(unmarshalbody); err != nil {
 			return err
 		}
 	case "dom":
@@ -132,26 +143,27 @@ func RequestData(method, url string, body io.Reader, option *Option) ([]byte, er
 	return data, nil
 }
 
-func RequestCookie(method, url string, body io.Reader, option *Option) (string, error) {
+func RequestCookie(method, url string, body io.Reader, option *Option) (string, []*http.Cookie, error) {
 	client := NewClient(option)
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	req, err := NewRequest(method, url, body, option)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", nil, err
 	}
 	defer res.Body.Close()
 
-	for _, cookie := range res.Cookies() {
+	cookies := res.Cookies()
+	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
-	return req.Header.Get("Cookie"), nil
+	return req.Header.Get("Cookie"), cookies, nil
 }
 
 func UpdateCookie(method, url string, body io.Reader, option *Option, cookie *string) error {
@@ -161,7 +173,7 @@ func UpdateCookie(method, url string, body io.Reader, option *Option, cookie *st
 	if *cookie != "" {
 		return nil
 	}
-	if _cookie, err := RequestCookie(method, url, nil, option); err != nil {
+	if _cookie, _, err := RequestCookie(method, url, nil, option); err != nil {
 		return err
 	} else {
 		*cookie = _cookie

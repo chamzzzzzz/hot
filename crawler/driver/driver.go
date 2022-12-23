@@ -22,7 +22,7 @@ type Option struct {
 func NewTestOptionFromEnv() (option Option) {
 	option.Proxy = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_PROXY")
 	option.Cookie = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_COOKIE")
-	option.Cookie = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_CATALOG")
+	option.Catalog = os.Getenv("HOT_CRAWLER_DRIVER_TEST_OPTION_CATALOG")
 	return
 }
 

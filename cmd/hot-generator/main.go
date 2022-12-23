@@ -166,7 +166,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 {{- if .Json}}
 
 type body struct {
-	Code    int {{.Backtick}}json:"code"{{.Backtick}}
+	Code    int    {{.Backtick}}json:"code"{{.Backtick}}
 	Message string {{.Backtick}}json:"message"{{.Backtick}}
 	Data    []struct {
 		Title string {{.Backtick}}json:"title"{{.Backtick}}
@@ -180,7 +180,7 @@ func (body *body) NormalizedCode() int {
 {{- else if .XML}}
 
 type body struct {
-	Code    int {{.Backtick}}xml:"code"{{.Backtick}}
+	Code    int    {{.Backtick}}xml:"code"{{.Backtick}}
 	Message string {{.Backtick}}xml:"message"{{.Backtick}}
 	Data    []struct {
 		Title string {{.Backtick}}xml:"title"{{.Backtick}}
