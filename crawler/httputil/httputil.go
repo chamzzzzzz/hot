@@ -88,10 +88,13 @@ func Request(method, url string, body io.Reader, unmarshalmethod string, unmarsh
 		data = bytes.TrimPrefix(data, []byte(option.TrimPrefix))
 	}
 
+	return Unmarshal(unmarshalmethod, data, unmarshalbody)
+}
+
+func Unmarshal(unmarshalmethod string, data []byte, unmarshalbody any) error {
 	switch unmarshalmethod {
 	case "json":
 		if err := json.Unmarshal(data, unmarshalbody); err != nil {
-			fmt.Println(string(data)[:100])
 			return err
 		}
 	case "xml":

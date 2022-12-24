@@ -76,6 +76,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jqka10"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jrj"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kanxue"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/kdslife"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kr36"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kuaishou"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kugou"
