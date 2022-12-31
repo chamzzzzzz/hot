@@ -58,18 +58,18 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for i, ol := range dom.FindAllStrict("ol", "class", "hotlist") {
+	for i, ol := range dom.QueryAll("ol", "class", "hotlist") {
 		catalog := itocatalog(i)
 		if c.Option.Catalog != "" && c.Option.Catalog != catalog {
 			continue
 		}
-		for _, li := range ol.FindAllStrict("li", "class", "item item_odd item_1") {
-			a := li.Find("a")
-			if a.Error != nil {
-				return nil, a.Error
+		for _, li := range ol.QueryAll("li", "class", "item item_odd item_1") {
+			a, err := li.Find("a")
+			if err != nil {
+				return nil, err
 			}
-			title := strings.TrimSpace(a.Attrs()["title"])
-			url := "https:" + strings.TrimSpace(a.Attrs()["href"])
+			title := strings.TrimSpace(a.Title())
+			url := "https:" + strings.TrimSpace(a.Href())
 			board.Append4(title, "", url, catalog)
 		}
 	}

@@ -44,44 +44,44 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.FindAllStrict("div", "class", "style_report__ZfacW") {
-		a := div.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, div := range dom.QueryAll("div", "class", "style_report__ZfacW") {
+		a, err := div.Find("a")
+		if err != nil {
+			return nil, err
 		}
-		span := div.Find("span")
-		if span.Error != nil {
-			return nil, span.Error
+		span, err := div.Find("span")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
-		url := "https://www.fxbaogao.com" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.fxbaogao.com" + strings.TrimSpace(a.Href())
 		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(span.Text()), time.Local)
 		if err != nil {
 			return nil, err
 		}
 		board.Append3x1(title, "", url, date)
 	}
-	for _, div := range dom.FindAllStrict("div", "class", "style_hotCardR__t9P0y") {
+	for _, div := range dom.QueryAll("div", "class", "style_hotCardR__t9P0y") {
 		//soup bug?
 		//parsed duplicate a element in the div element.
-		a := div.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+		a, err := div.Find("a")
+		if err != nil {
+			return nil, err
 		}
-		p := div.Find("p")
-		if p.Error != nil {
-			return nil, p.Error
+		p, err := div.Find("p")
+		if err != nil {
+			return nil, err
 		}
-		div = div.Find("div", "class", "style_time__bVTcg")
-		if div.Error != nil {
-			return nil, div.Error
+		div, err = div.Find("div", "class", "style_time__bVTcg")
+		if err != nil {
+			return nil, err
 		}
-		span := div.Find("span")
-		if span.Error != nil {
-			return nil, span.Error
+		span, err := div.Find("span")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(p.Text())
-		url := "https://www.fxbaogao.com" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.fxbaogao.com" + strings.TrimSpace(a.Href())
 		date, err := time.ParseInLocation("2006-01-02", strings.TrimSpace(span.Text()), time.Local)
 		if err != nil {
 			return nil, err

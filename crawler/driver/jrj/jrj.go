@@ -92,13 +92,13 @@ func (c *Crawler) tech() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.FindStrict("div", "class", "hotart hotnews")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "hotart hotnews")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAllStrict("a") {
+	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.Append4(title, "", url, Tech)
 	}
 	return board, nil
@@ -113,13 +113,13 @@ func (c *Crawler) house() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.FindStrict("div", "class", "hotart")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "hotart")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAllStrict("a") {
+	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.Append4(title, "", url, House)
 	}
 	return board, nil
@@ -135,13 +135,13 @@ func (c *Crawler) finance() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, id := range []string{"con_1", "con_2"} {
-		ul := dom.Find("ul", "id", id)
-		if ul.Error != nil {
-			return nil, ul.Error
+		ul, err := dom.Find("ul", "id", id)
+		if err != nil {
+			return nil, err
 		}
-		for _, a := range ul.FindAll("a") {
+		for _, a := range ul.QueryAll("a") {
 			title := strings.TrimSpace(a.Text())
-			url := strings.TrimSpace(a.Attrs()["href"])
+			url := strings.TrimSpace(a.Href())
 			board.Append4(title, "", url, Finance)
 		}
 	}

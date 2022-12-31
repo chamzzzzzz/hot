@@ -56,12 +56,12 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for i, div := range dom.FindAllStrict("div", "class", "popular-container") {
+	for i, div := range dom.QueryAll("div", "class", "popular-container") {
 		catalog := indextocatalog(i)
 		if c.Option.Catalog == "" || c.Option.Catalog == catalog {
-			for _, a := range div.FindAllStrict("a") {
+			for _, a := range div.QueryAll("a") {
 				title := strings.TrimSpace(a.Text())
-				url := "https://www.maoyan.com" + strings.TrimSpace(a.Attrs()["href"])
+				url := "https://www.maoyan.com" + strings.TrimSpace(a.Href())
 				if title == "" {
 					continue
 				}

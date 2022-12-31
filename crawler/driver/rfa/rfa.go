@@ -102,14 +102,14 @@ func (c *Crawler) withLanguage(language string) (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.FindAllStrict("div", "class", "most_read_only first_most_bold") {
-		for _, li := range div.FindAll("li") {
-			a := li.Find("a")
-			if a.Error != nil {
-				return nil, a.Error
+	for _, div := range dom.QueryAll("div", "class", "most_read_only first_most_bold") {
+		for _, li := range div.QueryAll("li") {
+			a, err := li.Find("a")
+			if err != nil {
+				return nil, err
 			}
 			title := strings.TrimSpace(a.Text())
-			url := strings.TrimSpace(a.Attrs()["href"])
+			url := strings.TrimSpace(a.Href())
 			catalog := language
 			board.Append4(title, "", url, catalog)
 		}

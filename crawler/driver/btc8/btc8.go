@@ -43,28 +43,28 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "class", "hot-article-list")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "hot-article-list")
+	if err != nil {
+		return nil, err
 	}
-	a := div.Find("a")
-	if a.Error != nil {
-		return nil, a.Error
+	a, err := div.Find("a")
+	if err != nil {
+		return nil, err
 	}
-	p := a.Find("p")
-	if p.Error != nil {
-		return nil, p.Error
+	p, err := a.Find("p")
+	if err != nil {
+		return nil, err
 	}
 	title := strings.TrimSpace(p.Text())
-	url := "https://www.8btc.com" + strings.TrimSpace(a.Attrs()["href"])
+	url := "https://www.8btc.com" + strings.TrimSpace(a.Href())
 	board.AppendTitleURL(title, url)
-	for _, a := range div.FindAllStrict("a", "class", "link-dark-major") {
-		p = a.Find("p")
-		if p.Error != nil {
-			return nil, p.Error
+	for _, a := range div.QueryAll("a", "class", "link-dark-major") {
+		p, err = a.Find("p")
+		if err != nil {
+			return nil, err
 		}
 		title = strings.TrimSpace(p.Text())
-		url = "https://www.8btc.com" + strings.TrimSpace(a.Attrs()["href"])
+		url = "https://www.8btc.com" + strings.TrimSpace(a.Href())
 		board.AppendTitleURL(title, url)
 	}
 	return board, nil

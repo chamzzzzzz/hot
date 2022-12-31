@@ -43,22 +43,22 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, li := range dom.FindAllStrict("li", "class", "rank-list-item") {
-		a := li.FindStrict("a", "class", "g-a-block")
-		p1 := li.FindStrict("p", "class", "rank-vod-title")
-		p2 := li.FindStrict("p", "class", "rank-vod-desc")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, li := range dom.QueryAll("li", "class", "rank-list-item") {
+		a, err := li.Find("a", "class", "g-a-block")
+		if err != nil {
+			return nil, err
 		}
-		if p1.Error != nil {
-			return nil, p1.Error
+		p1, err := li.Find("p", "class", "rank-vod-title")
+		if err != nil {
+			return nil, err
 		}
-		if p2.Error != nil {
-			return nil, p2.Error
+		p2, err := li.Find("p", "class", "rank-vod-desc")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(p1.Text())
 		summary := strings.TrimSpace(p2.Text())
-		url := "https://www.mddcloud.com.cn" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.mddcloud.com.cn" + strings.TrimSpace(a.Href())
 		board.AppendTitleSummaryURL(title, summary, url)
 	}
 	return board, nil

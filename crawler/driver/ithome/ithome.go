@@ -50,13 +50,13 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, ulId := range catalogtoids(c.Option.Catalog) {
-		ul := dom.FindStrict("ul", "id", ulId)
-		if ul.Error != nil {
-			return nil, ul.Error
+		ul, err := dom.Find("ul", "id", ulId)
+		if err != nil {
+			return nil, err
 		}
-		for _, a := range ul.FindAllStrict("a") {
+		for _, a := range ul.QueryAll("a") {
 			title := strings.TrimSpace(a.Text())
-			url := strings.TrimSpace(a.Attrs()["href"])
+			url := strings.TrimSpace(a.Href())
 			catalog := idtocatalog(ulId)
 			board.Append4(title, "", url, catalog)
 		}

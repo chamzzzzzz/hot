@@ -43,9 +43,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, a := range dom.FindAllStrict("a", "class", "index_key__yzJHB") {
+	for _, a := range dom.QueryAll("a", "class", "index_key__yzJHB") {
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.AppendTitleURL(title, url)
 	}
 	return board, nil

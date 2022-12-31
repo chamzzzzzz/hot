@@ -43,17 +43,17 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, a := range dom.FindAllStrict("a", "class", "hot_articles_list") {
-		div := a.FindStrict("div", "class", "hot_articles_title")
-		if div.Error != nil {
-			return nil, div.Error
+	for _, a := range dom.QueryAll("a", "class", "hot_articles_list") {
+		div, err := a.Find("div", "class", "hot_articles_title")
+		if err != nil {
+			return nil, err
 		}
-		p := div.Find("p")
-		if p.Error != nil {
-			return nil, p.Error
+		p, err := div.Find("p")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(p.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		if strings.HasPrefix(url, "/focusnews_detail/") {
 			url = "https://www.zhiguf.com" + url
 		}

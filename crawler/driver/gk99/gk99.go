@@ -44,26 +44,26 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	ul := dom.FindStrict("ul", "class", "cfix fin_newsList")
-	if ul.Error != nil {
-		return nil, ul.Error
+	ul, err := dom.Find("ul", "class", "cfix fin_newsList")
+	if err != nil {
+		return nil, err
 	}
-	for _, li := range ul.FindAllStrict("li") {
-		a := li.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, li := range ul.QueryAll("li") {
+		a, err := li.Find("a")
+		if err != nil {
+			return nil, err
 		}
-		p := li.Find("p")
-		if p.Error != nil {
-			return nil, p.Error
+		p, err := li.Find("p")
+		if err != nil {
+			return nil, err
 		}
-		em := li.Find("em", "class", "fRight")
-		if em.Error != nil {
-			return nil, em.Error
+		em, err := li.Find("em", "class", "fRight")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
 		summary := strings.TrimSpace(p.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		date, err := time.ParseInLocation("2006-01-02 15:04:05", strings.TrimSpace(em.Text()), time.Local)
 		if err != nil {
 			return nil, err

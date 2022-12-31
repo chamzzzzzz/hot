@@ -80,13 +80,13 @@ func (c *Crawler) withClasses(classes ...string) (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, class := range classes {
-		for _, a := range dom.FindAllStrict("a", "class", class) {
-			div := a.FindStrict("div", "class", "hot-title")
-			if div.Error != nil {
-				return nil, div.Error
+		for _, a := range dom.QueryAll("a", "class", class) {
+			div, err := a.Find("div", "class", "hot-title")
+			if err != nil {
+				return nil, err
 			}
 			title := strings.TrimSpace(div.Text())
-			url := strings.TrimSpace(a.Attrs()["href"])
+			url := strings.TrimSpace(a.Href())
 			catalog := classtocatalog(class)
 			board.Append4(title, "", url, catalog)
 		}

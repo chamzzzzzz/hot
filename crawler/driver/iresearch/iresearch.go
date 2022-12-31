@@ -45,17 +45,17 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.FindStrict("div", "class", "g-top f-mt-auto")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "g-top f-mt-auto")
+	if err != nil {
+		return nil, err
 	}
-	div2 := div.Find("div", "class", "m-bd")
-	if div2.Error != nil {
-		return nil, div2.Error
+	div2, err := div.Find("div", "class", "m-bd")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div2.FindAllStrict("a") {
+	for _, a := range div2.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.AppendTitleURL(title, url)
 	}
 	return board, nil

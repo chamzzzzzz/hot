@@ -45,17 +45,17 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	ul := dom.FindStrict("ul", "class", "ui-sideArticleList")
-	if ul.Error != nil {
-		return nil, ul.Error
+	ul, err := dom.Find("ul", "class", "ui-sideArticleList")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range ul.FindAllStrict("a", "class", "link") {
-		div := a.Find("div", "class", "time")
-		if div.Error != nil {
-			return nil, div.Error
+	for _, a := range ul.QueryAll("a", "class", "link") {
+		div, err := a.Find("div", "class", "time")
+		if err != nil {
+			return nil, err
 		}
-		title := strings.TrimSpace(a.Attrs()["title"])
-		url := "https://www.leikeji.com" + strings.TrimSpace(a.Attrs()["href"])
+		title := strings.TrimSpace(a.Title())
+		url := "https://www.leikeji.com" + strings.TrimSpace(a.Href())
 		date, err := strtotime(strings.TrimSpace(div.Text()))
 		if err != nil {
 			return nil, err

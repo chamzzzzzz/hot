@@ -50,24 +50,24 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for i, div := range dom.FindAllStrict("div", "class", "list-section-wrapper") {
+	for i, div := range dom.QueryAll("div", "class", "list-section-wrapper") {
 		catalog := itocatalog(i)
 		if c.Option.Catalog != "" && c.Option.Catalog != catalog {
 			continue
 		}
 
-		for _, div := range div.FindAll("div", "class", "article-wrapper") {
-			a1 := div.FindStrict("a", "class", "article-item-title weight-bold")
-			if a1.Error != nil {
-				return nil, a1.Error
+		for _, div := range div.QueryAll("div", "class", "article-wrapper") {
+			a1, err := div.Find("a", "class", "article-item-title weight-bold")
+			if err != nil {
+				return nil, err
 			}
-			a2 := div.FindStrict("a", "class", "article-item-description ellipsis-2")
-			if a2.Error != nil {
-				return nil, a2.Error
+			a2, err := div.Find("a", "class", "article-item-description ellipsis-2")
+			if err != nil {
+				return nil, err
 			}
 			title := strings.TrimSpace(a1.Text())
 			summary := strings.TrimSpace(a2.Text())
-			url := "https://36kr.com" + strings.TrimSpace(a1.Attrs()["href"])
+			url := "https://36kr.com" + strings.TrimSpace(a1.Href())
 			board.Append4(title, summary, url, catalog)
 		}
 	}

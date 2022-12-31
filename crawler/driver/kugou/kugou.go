@@ -87,13 +87,13 @@ func (c *Crawler) withCatalog(catalog string, board *hot.Board) (*hot.Board, err
 	if board == nil {
 		board = hot.NewBoard(c.Name())
 	}
-	div := dom.Find("div", "id", "rankWrap")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "id", "rankWrap")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAllStrict("a", "class", "pc_temp_songname") {
-		title := strings.TrimSpace(a.Attrs()["title"])
-		url := strings.TrimSpace(a.Attrs()["href"])
+	for _, a := range div.QueryAll("a", "class", "pc_temp_songname") {
+		title := strings.TrimSpace(a.Title())
+		url := strings.TrimSpace(a.Href())
 		board.AppendTitleURLCatalog(title, url, catalog)
 	}
 	return board, nil

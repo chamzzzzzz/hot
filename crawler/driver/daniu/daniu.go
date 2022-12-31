@@ -47,31 +47,30 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.FindStrict("div", "class", "tl")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "tl")
+	if err != nil {
+		return nil, err
 	}
-	tbody := div.FindAllStrict("tbody")
+	tbody := div.QueryAll("tbody")
 	if len(tbody) != 2 {
 		return nil, fmt.Errorf("tbody count invalid")
 	}
-	for _, tr := range tbody[1].FindAllStrict("tr") {
-		th := tr.Find("th")
-		if th.Error != nil {
-			return nil, th.Error
+	for _, tr := range tbody[1].QueryAll("tr") {
+		th, err := tr.Find("th")
+		if err != nil {
+			return nil, err
 		}
-		em := tr.FindStrict("em")
-		if em.Error != nil {
-			fmt.Println(tr.FullText())
-			return nil, em.Error
+		em, err := tr.Find("em")
+		if err != nil {
+			return nil, err
 		}
-		a := th.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+		a, err := th.Find("a")
+		if err != nil {
+			return nil, err
 		}
 
 		title := strings.TrimSpace(a.Text())
-		url := "https://www.daniu523.com/" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.daniu523.com/" + strings.TrimSpace(a.Href())
 		date, err := time.ParseInLocation("2006-1-2 15:04", strings.TrimSpace(em.Text()), time.Local)
 		if err != nil {
 			return nil, err

@@ -43,14 +43,14 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, ul := range dom.FindAllStrict("ul", "class", "vd-list a9-mini-news-list vdp-theme_lite is-gap is-divided") {
-		for _, a := range ul.FindAllStrict("a", "class", "vd-list_container") {
-			span := a.Find("span", "class", "a9-mini-news-list_title")
-			if span.Error != nil {
-				return nil, span.Error
+	for _, ul := range dom.QueryAll("ul", "class", "vd-list a9-mini-news-list vdp-theme_lite is-gap is-divided") {
+		for _, a := range ul.QueryAll("a", "class", "vd-list_container") {
+			span, err := a.Find("span", "class", "a9-mini-news-list_title")
+			if err != nil {
+				return nil, err
 			}
 			title := strings.TrimSpace(span.Text())
-			url := "https://www.a9vg.com" + strings.TrimSpace(a.Attrs()["href"])
+			url := "https://www.a9vg.com" + strings.TrimSpace(a.Href())
 			board.AppendTitleURL(title, url)
 		}
 	}

@@ -45,28 +45,28 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.FindAllStrict("div", "class", "item-intro") {
-		a := div.Find("a", "class", "item-title")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, div := range dom.QueryAll("div", "class", "item-intro") {
+		a, err := div.Find("a", "class", "item-title")
+		if err != nil {
+			return nil, err
 		}
-		p := div.Find("p", "class", "item-desc")
-		if p.Error != nil {
-			return nil, p.Error
+		p, err := div.Find("p", "class", "item-desc")
+		if err != nil {
+			return nil, err
 		}
-		span := div.Find("span", "class", "time")
-		if span.Error != nil {
-			return nil, span.Error
+		span, err := div.Find("span", "class", "time")
+		if err != nil {
+			return nil, err
 		}
 
-		timestamp, err := strconv.ParseInt(span.Attrs()["data-time"], 10, 64)
+		timestamp, err := strconv.ParseInt(span.Attribute("data-time"), 10, 64)
 		if err != nil {
 			return nil, err
 		}
 
 		title := strings.TrimSpace(a.Text())
 		summary := strings.TrimSpace(p.Text())
-		url := "https:" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https:" + strings.TrimSpace(a.Href())
 		date := time.Unix(timestamp, 0)
 		board.Append3x1(title, summary, url, date)
 	}

@@ -42,11 +42,14 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.FindAllStrict("div", "class", "content_1YWBm") {
-		div01 := div.FindStrict("div", "class", "c-single-text-ellipsis")
-		div02 := div.Find("div", "class", "small_Uvkd3")
-		if div01.Error != nil || div02.Error != nil {
-			continue
+	for _, div := range dom.QueryAll("div", "class", "content_1YWBm") {
+		div01, err := div.Find("div", "class", "c-single-text-ellipsis")
+		if err != nil {
+			return nil, err
+		}
+		div02, err := div.Find("div", "class", "small_Uvkd3")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(div01.Text())
 		summary := strings.TrimSpace(div02.Text())

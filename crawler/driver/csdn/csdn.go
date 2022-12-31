@@ -45,7 +45,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, script := range dom.FindAllStrict("script") {
+	for _, script := range dom.QueryAll("script") {
 		text := strings.TrimSpace(script.Text())
 		if strings.HasPrefix(text, "window.__INITIAL_STATE__= ") {
 			text = strings.TrimPrefix(text, "window.__INITIAL_STATE__= ")

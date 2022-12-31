@@ -45,27 +45,27 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "data-section", "3")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "data-section", "3")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAllStrict("a", "class", "cell-list__item m-no-image") {
-		span := a.Find("span", "class", "cell__controls-date")
-		if span.Error != nil {
-			return nil, span.Error
+	for _, a := range div.QueryAll("a", "class", "cell-list__item m-no-image") {
+		span, err := a.Find("span", "class", "cell__controls-date")
+		if err != nil {
+			return nil, err
 		}
-		span = span.Find("span")
-		if span.Error != nil {
-			return nil, span.Error
-		}
-
-		timestamp, err := strconv.ParseInt(span.Attrs()["data-unixtime"], 10, 64)
+		span, err = span.Find("span")
 		if err != nil {
 			return nil, err
 		}
 
-		title := strings.TrimSpace(a.Attrs()["title"])
-		url := "https://www.sputniknews.cn" + strings.TrimSpace(a.Attrs()["href"])
+		timestamp, err := strconv.ParseInt(span.Attribute("data-unixtime"), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		title := strings.TrimSpace(a.Title())
+		url := "https://www.sputniknews.cn" + strings.TrimSpace(a.Href())
 		date := time.Unix(timestamp, 0)
 		board.Append3x1(title, "", url, date)
 	}

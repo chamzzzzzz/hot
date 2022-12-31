@@ -50,28 +50,30 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		return nil, err
 	}
 
-	div := dom.FindStrict("div", "id", "pl_top_realtimehot")
-	if div.Error != nil {
-		return nil, div.Error
-	}
-
 	board := hot.NewBoard(c.Name())
-	for _, tr := range div.FindAllStrict("tr", "class", "") {
-		td01 := tr.Find("td", "class", "td-01")
-		if td01.Error != nil {
-			return nil, td01.Error
+	div, err := dom.Find("div", "id", "pl_top_realtimehot")
+	if err != nil {
+		return nil, err
+	}
+	tbody, err := div.Find("tbody")
+	if err != nil {
+		return nil, err
+	}
+	for _, tr := range tbody.QueryAll("tr", "class", "") {
+		td01, err := tr.Find("td", "class", "td-01")
+		if err != nil {
+			return nil, err
 		}
 		if _, err := strconv.Atoi(td01.Text()); err != nil {
 			continue
 		}
-
-		td02 := tr.Find("td", "class", "td-02")
-		if td02.Error != nil {
-			return nil, td02.Error
+		td02, err := tr.Find("td", "class", "td-02")
+		if err != nil {
+			return nil, err
 		}
-		a := td02.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+		a, err := td02.Find("a")
+		if err != nil {
+			return nil, err
 		}
 		board.Append1(a.Text())
 	}

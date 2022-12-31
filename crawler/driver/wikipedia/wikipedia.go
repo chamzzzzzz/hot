@@ -43,11 +43,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.FindStrict("div", "class", "hlist mp-2012-text")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "hlist mp-2012-text")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAll("a") {
+	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
 		board.Append1(title)
 	}

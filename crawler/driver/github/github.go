@@ -43,23 +43,20 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, article := range dom.FindAllStrict("article", "class", "Box-row") {
-		h1 := article.FindStrict("h1", "class", "h3 lh-condensed")
-		if h1.Error != nil {
+	for _, article := range dom.QueryAll("article", "class", "Box-row") {
+		h1, err := article.Find("h1", "class", "h3 lh-condensed")
+		if err != nil {
 			continue
 		}
-
-		a := h1.FindStrict("a")
-		if a.Error != nil {
+		a, err := h1.Find("a")
+		if err != nil {
 			continue
 		}
-
-		p := article.FindStrict("p", "class", "col-9 color-fg-muted my-1 pr-4")
-		if p.Error != nil {
+		p, err := article.Find("p", "class", "col-9 color-fg-muted my-1 pr-4")
+		if err != nil {
 			continue
 		}
-
-		title := strings.Trim(a.Attrs()["href"], "/")
+		title := strings.Trim(a.Href(), "/")
 		summary := strings.Trim(p.Text(), " \n")
 		url := "https://github.com/" + title
 		board.AppendTitleSummaryURL(title, summary, url)

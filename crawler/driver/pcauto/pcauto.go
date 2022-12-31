@@ -79,19 +79,19 @@ func (c *Crawler) withClasses(classes ...string) (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.FindStrict("div", "class", "section ranking")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "section ranking")
+	if err != nil {
+		return nil, err
 	}
 	for _, class := range classes {
-		ul := div.FindStrict("ul", "class", class)
-		if ul.Error != nil {
-			return nil, ul.Error
+		ul, err := div.Find("ul", "class", class)
+		if err != nil {
+			return nil, err
 		}
 		catalog := classtocatalog(class)
-		for _, a := range ul.FindAllStrict("a") {
+		for _, a := range ul.QueryAll("a") {
 			title := strings.TrimSpace(a.Text())
-			url := "https:" + strings.TrimSpace(a.Attrs()["href"])
+			url := "https:" + strings.TrimSpace(a.Href())
 			board.AppendTitleURLCatalog(title, url, catalog)
 		}
 	}

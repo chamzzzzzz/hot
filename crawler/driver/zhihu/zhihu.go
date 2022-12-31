@@ -43,7 +43,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.FindAllStrict("div", "class", "TopSearchMain-title") {
+	for _, div := range dom.QueryAll("div", "class", "TopSearchMain-title") {
 		title := strings.TrimSpace(div.Text())
 		board.Append1(title)
 	}

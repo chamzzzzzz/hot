@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/anaskhan96/soup"
 	"github.com/chamzzzzzz/hot/crawler/driver"
+	"github.com/chamzzzzzz/supersimplesoup"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io"
@@ -106,12 +106,12 @@ func Unmarshal(unmarshalmethod string, data []byte, unmarshalbody any) error {
 			return err
 		}
 	case "dom":
-		root := soup.HTMLParse(string(data))
-		if root.Error != nil {
-			return root.Error
+		node, err := supersimplesoup.Parse(bytes.NewReader(data))
+		if err != nil {
+			return err
 		}
 		if dom, ok := unmarshalbody.(*DOM); ok {
-			dom.Root = root
+			dom.Node = node
 		} else {
 			return fmt.Errorf("no support unmarshal body:%T", unmarshalbody)
 		}
@@ -185,7 +185,7 @@ func UpdateCookie(method, url string, body io.Reader, option *Option, cookie *st
 }
 
 type DOM struct {
-	soup.Root
+	*supersimplesoup.Node
 }
 
 type ResponseBodyNormalizer interface {

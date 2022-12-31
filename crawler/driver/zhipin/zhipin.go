@@ -81,13 +81,13 @@ func (c *Crawler) question(board *hot.Board) (*hot.Board, error) {
 	if board == nil {
 		board = hot.NewBoard(c.Name())
 	}
-	for _, li := range dom.FindAllStrict("li", "class", "hot-item") {
-		a := li.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, li := range dom.QueryAll("li", "class", "hot-item") {
+		a, err := li.Find("a")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.Append4(title, "", url, Question)
 	}
 	return board, nil
@@ -102,22 +102,22 @@ func (c *Crawler) hotsearchjob(board *hot.Board) (*hot.Board, error) {
 	if board == nil {
 		board = hot.NewBoard(c.Name())
 	}
-	div := dom.FindStrict("div", "class", "baike-hot-list-item hotList")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "baike-hot-list-item hotList")
+	if err != nil {
+		return nil, err
 	}
-	for _, li := range div.FindAllStrict("li", "class", "list-item") {
-		a := li.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, li := range div.QueryAll("li", "class", "list-item") {
+		a, err := li.Find("a")
+		if err != nil {
+			return nil, err
 		}
-		span := li.Find("span")
-		if span.Error != nil {
-			return nil, span.Error
+		span, err := li.Find("span")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
 		summary := strings.TrimSpace(span.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.Append4(title, summary, url, HotSearchJob)
 	}
 	return board, nil
@@ -132,22 +132,22 @@ func (c *Crawler) hotrecruitingjob(board *hot.Board) (*hot.Board, error) {
 	if board == nil {
 		board = hot.NewBoard(c.Name())
 	}
-	div := dom.FindStrict("div", "class", "common-tab-box merge-city-job hot-job-box")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "common-tab-box merge-city-job hot-job-box")
+	if err != nil {
+		return nil, err
 	}
-	for _, li := range div.FindAllStrict("li") {
-		a := li.Find("a", "class", "job-info")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, li := range div.QueryAll("li") {
+		a, err := li.Find("a", "class", "job-info")
+		if err != nil {
+			return nil, err
 		}
-		a2 := li.Find("a", "class", "user-info")
-		if a2.Error != nil {
-			return nil, a2.Error
+		a2, err := li.Find("a", "class", "user-info")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.Join(strings.Fields(strings.TrimSpace(a.FullText())), "---")
 		summary := strings.Join(strings.Fields(strings.TrimSpace(a2.FullText())), "---")
-		url := "https://www.zhipin.com" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.zhipin.com" + strings.TrimSpace(a.Href())
 		board.Append4(title, summary, url, HotRecruitingJob)
 	}
 	return board, nil

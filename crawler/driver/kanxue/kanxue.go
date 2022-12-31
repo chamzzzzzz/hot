@@ -78,17 +78,17 @@ func (c *Crawler) bbs() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	tbody := dom.Find("tbody", "id", "arctilelist")
-	if tbody.Error != nil {
-		return nil, tbody.Error
+	tbody, err := dom.Find("tbody", "id", "arctilelist")
+	if err != nil {
+		return nil, err
 	}
-	for _, tr := range tbody.FindAll("tr") {
-		a := tr.Find("a", "class", "text-white")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, tr := range tbody.QueryAll("tr") {
+		a, err := tr.Find("a", "class", "text-white")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
-		url := "https://bbs.pediy.com/" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://bbs.pediy.com/" + strings.TrimSpace(a.Href())
 		board.Append4(title, "", url, BBS)
 	}
 	return board, nil
@@ -101,13 +101,13 @@ func (c *Crawler) news() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.FindAllStrict("div", "class", "pr-3 pb-2 mb-2 position-relative") {
-		a := div.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, div := range dom.QueryAll("div", "class", "pr-3 pb-2 mb-2 position-relative") {
+		a, err := div.Find("a")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		if !strings.HasPrefix(url, "http") {
 			url = "https://" + url
 		}

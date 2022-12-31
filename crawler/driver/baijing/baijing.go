@@ -43,13 +43,13 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "id", "hot_article")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "id", "hot_article")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAllStrict("a") {
+	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
-		url := "https://www.baijing.cn" + strings.TrimSpace(a.Attrs()["href"])
+		url := "https://www.baijing.cn" + strings.TrimSpace(a.Href())
 		board.AppendTitleURL(title, url)
 	}
 	return board, nil

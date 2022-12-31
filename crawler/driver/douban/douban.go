@@ -78,17 +78,17 @@ func (c *Crawler) movie() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "class", "screening-bd")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "screening-bd")
+	if err != nil {
+		return nil, err
 	}
-	for _, li := range div.FindAll("li", "class", "title") {
-		a := li.Find("a")
-		if a.Error != nil {
-			return nil, a.Error
+	for _, li := range div.QueryAll("li", "class", "title") {
+		a, err := li.Find("a")
+		if err != nil {
+			return nil, err
 		}
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.Append4(title, "", url, Movie)
 	}
 	return board, nil
@@ -101,13 +101,13 @@ func (c *Crawler) note() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div := dom.Find("div", "class", "notes")
-	if div.Error != nil {
-		return nil, div.Error
+	div, err := dom.Find("div", "class", "notes")
+	if err != nil {
+		return nil, err
 	}
-	for _, a := range div.FindAll("a") {
+	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Attrs()["href"])
+		url := strings.TrimSpace(a.Href())
 		board.Append4(title, "", url, Note)
 	}
 	return board, nil
