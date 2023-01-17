@@ -54,6 +54,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			if title == "" {
 				continue
 			}
+			if !strings.HasPrefix(url, "http") {
+				url = "https:" + url
+			}
 			board.AppendTitleURL(title, url)
 		}
 	}
