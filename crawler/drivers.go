@@ -125,6 +125,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thehackernews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thehill"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thepaper"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/theverge"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tianya"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tianyancha"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tieba"
