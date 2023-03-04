@@ -11,7 +11,7 @@ import (
 const (
 	DriverName  = "qqnews"
 	ProxySwitch = false
-	URL         = `https://i.news.qq.com/trpc.qqnews_web.kv_srv.kv_srv_http_proxy/list?sub_srv_id=24hours&srv_id=pc&offset=0&limit=20&strategy=1&ext={%22pool%22:[%22top%22],%22is_filter%22:7,%22check_type%22:true}`
+	URL         = `https://r.inews.qq.com/gw/event/hot_ranking_list?offset=0&page_size=50`
 )
 
 type Driver struct {
@@ -46,24 +46,28 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, data := range body.Data.List {
-		date, err := time.ParseInLocation("2006-01-02 15:04:05", data.PublishTime, time.Local)
-		if err != nil {
-			return nil, err
+	if len(body.Idlist) > 0 {
+		for _, data := range body.Idlist[0].Newslist {
+			if data.URL == "" {
+				continue
+			}
+			date, err := time.ParseInLocation("2006-01-02 15:04:05", data.Time, time.Local)
+			if err != nil {
+				return nil, err
+			}
+			board.Append3x1(data.Title, "", data.URL, date)
 		}
-		board.Append3x1(data.Title, "", data.URL, date)
 	}
 	return board, nil
 }
 
 type body struct {
-	Ret  int    `json:"ret"`
-	Msg  string `json:"msg"`
-	Data struct {
-		List []struct {
-			Title       string `json:"title"`
-			URL         string `json:"url"`
-			PublishTime string `json:"publish_time"`
-		} `json:"list"`
-	} `json:"data"`
+	Ret    int `json:"ret"`
+	Idlist []struct {
+		Newslist []struct {
+			Title string `json:"title"`
+			URL   string `json:"url,omitempty"`
+			Time  string `json:"time,omitempty"`
+		} `json:"newslist"`
+	} `json:"idlist"`
 }
