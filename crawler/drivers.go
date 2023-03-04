@@ -99,7 +99,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/pedaily"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/pojie52"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/pudn"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/qcc"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/qixin"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/qqnews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/qqvideo"
