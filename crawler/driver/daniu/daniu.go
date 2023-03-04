@@ -12,7 +12,7 @@ import (
 const (
 	DriverName  = "daniu"
 	ProxySwitch = false
-	URL         = "https://www.daniu523.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
+	URL         = "https://www.daniu525.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
 )
 
 type Driver struct {
