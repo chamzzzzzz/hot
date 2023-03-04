@@ -58,7 +58,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/hupu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/huxiu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ifeng"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/igao7"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/im2maker"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoq"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoqcom"
