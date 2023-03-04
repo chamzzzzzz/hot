@@ -6,7 +6,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ali213"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/applemarketingtools"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/baidu"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/baijing"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bbc"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bilibili"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bjnews"
