@@ -8,6 +8,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bbc"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bilibili"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bjnews"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/bkeconomy"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/btc8"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/china"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/chinanews"
