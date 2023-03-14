@@ -77,6 +77,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/lanjinger"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/maoyan"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mddcloud"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/medium"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mtime"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mydrivers"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mysmth"
