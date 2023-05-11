@@ -103,7 +103,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/stcn"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/takungpao"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/taptap"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/techradar"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/techweb"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tfcaijing"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thecover"
