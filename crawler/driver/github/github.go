@@ -1,10 +1,11 @@
 package github
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -44,11 +45,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, article := range dom.QueryAll("article", "class", "Box-row") {
-		h1, err := article.Find("h1", "class", "h3 lh-condensed")
+		h2, err := article.Find("h2", "class", "h3 lh-condensed")
 		if err != nil {
 			continue
 		}
-		a, err := h1.Find("a")
+		a, err := h2.Find("a")
 		if err != nil {
 			continue
 		}
