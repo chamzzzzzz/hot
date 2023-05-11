@@ -1,10 +1,11 @@
 package gizmodo
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -43,7 +44,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, li := range dom.QueryAll("li", "class", "sc-4yr8xe-2 sc-41vfnj-1 xOQQT") {
+	for _, li := range dom.QueryAll("li", "class", "sc-4yr8xe-2 sc-41vfnj-1") {
 		a, err := li.Find("a")
 		if err != nil {
 			return nil, err
