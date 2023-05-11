@@ -1,10 +1,11 @@
 package yystv
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -44,9 +45,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, a := range dom.QueryAll("a", "class", "top-news-link") {
-		div, err := a.Find("div", "class", "top-news-text")
-		if err != nil {
-			return nil, err
+		div := a.Query("div", "class", "top-news-text")
+		if div == nil {
+			continue
 		}
 		h2, err := div.Find("h2")
 		if err != nil {
