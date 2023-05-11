@@ -2,17 +2,18 @@ package daniu
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
-	"time"
 )
 
 const (
 	DriverName  = "daniu"
 	ProxySwitch = false
-	URL         = "https://www.daniu525.com/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
+	URL         = "https://www.4330.cn/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
 )
 
 type Driver struct {
@@ -70,7 +71,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 
 		title := strings.TrimSpace(a.Text())
-		url := "https://www.daniu523.com/" + strings.TrimSpace(a.Href())
+		url := "https://www.4330.cn/" + strings.TrimSpace(a.Href())
 		date, err := time.ParseInLocation("2006-1-2 15:04", strings.TrimSpace(em.Text()), time.Local)
 		if err != nil {
 			return nil, err
