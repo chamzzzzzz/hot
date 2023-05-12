@@ -2,11 +2,12 @@ package china
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
-	"time"
 )
 
 const (
@@ -99,7 +100,11 @@ func (c *Crawler) auto(board *hot.Board) (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(span.Text())
 		url := AutoURL + strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, Auto)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: Auto,
+		})
 	}
 	return board, nil
 }
@@ -125,7 +130,11 @@ func (c *Crawler) finance(board *hot.Board) (*hot.Board, error) {
 			}
 			title := strings.TrimSpace(a.Text())
 			url := strings.TrimSpace(a.Href())
-			board.Append4(title, "", url, Finance)
+			board.Append(&hot.Hot{
+				Title:   title,
+				URL:     url,
+				Catalog: Finance,
+			})
 		}
 	}
 	return board, nil
@@ -150,7 +159,7 @@ func (c *Crawler) rank(board *hot.Board, catalog string) (*hot.Board, error) {
 		if err != nil {
 			return nil, err
 		}
-		board.Append4x1(title, summary, url, catalog, date)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url, Catalog: catalog, PublishDate: date})
 	}
 	return board, nil
 }

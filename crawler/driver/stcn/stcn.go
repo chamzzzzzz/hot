@@ -1,10 +1,11 @@
 package stcn
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -44,7 +45,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.AppendTitleURL(strings.TrimSpace(data.Title), "https://www.stcn.com"+strings.TrimSpace((data.URL)))
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: "https://www.stcn.com" + strings.TrimSpace(data.URL)})
 	}
 	return board, nil
 }

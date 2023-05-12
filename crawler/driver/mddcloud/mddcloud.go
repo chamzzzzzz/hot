@@ -1,10 +1,11 @@
 package mddcloud
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -59,7 +60,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		title := strings.TrimSpace(p1.Text())
 		summary := strings.TrimSpace(p2.Text())
 		url := "https://www.mddcloud.com.cn" + strings.TrimSpace(a.Href())
-		board.AppendTitleSummaryURL(title, summary, url)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url})
 	}
 	return board, nil
 }

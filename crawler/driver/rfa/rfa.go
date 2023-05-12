@@ -1,10 +1,11 @@
 package rfa
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -61,7 +62,7 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	} else {
 		for _, hot := range b.Hots {
-			board.Append0(hot)
+			board.Append(hot)
 		}
 	}
 
@@ -69,7 +70,7 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	} else {
 		for _, hot := range b.Hots {
-			board.Append0(hot)
+			board.Append(hot)
 		}
 	}
 
@@ -77,7 +78,7 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	} else {
 		for _, hot := range b.Hots {
-			board.Append0(hot)
+			board.Append(hot)
 		}
 	}
 	return board, nil
@@ -111,7 +112,11 @@ func (c *Crawler) withLanguage(language string) (*hot.Board, error) {
 			title := strings.TrimSpace(a.Text())
 			url := strings.TrimSpace(a.Href())
 			catalog := language
-			board.Append4(title, "", url, catalog)
+			board.Append(&hot.Hot{
+				Title:   title,
+				URL:     url,
+				Catalog: catalog,
+			})
 		}
 	}
 	return board, nil

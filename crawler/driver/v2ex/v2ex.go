@@ -1,10 +1,11 @@
 package v2ex
 
 import (
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"time"
 )
 
 const (
@@ -45,7 +46,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	board := hot.NewBoard(c.Name())
 	for _, item := range body {
 		date := time.Unix(item.Created, 0)
-		board.Append3x1(item.Title, "", item.URL, date)
+		board.Append(&hot.Hot{Title: item.Title, URL: item.URL, PublishDate: date})
 	}
 	return board, nil
 }

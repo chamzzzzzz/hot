@@ -60,7 +60,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		title := strings.Trim(a.Href(), "/")
 		summary := strings.Trim(p.Text(), " \n")
 		url := "https://github.com/" + title
-		board.AppendTitleSummaryURL(title, summary, url)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url})
 	}
 	return board, nil
 }

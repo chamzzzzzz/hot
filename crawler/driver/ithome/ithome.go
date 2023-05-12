@@ -1,10 +1,11 @@
 package ithome
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -58,7 +59,11 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			title := strings.TrimSpace(a.Text())
 			url := strings.TrimSpace(a.Href())
 			catalog := idtocatalog(ulId)
-			board.Append4(title, "", url, catalog)
+			board.Append(&hot.Hot{
+				Title:   title,
+				URL:     url,
+				Catalog: catalog,
+			})
 		}
 	}
 	return board, nil

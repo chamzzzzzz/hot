@@ -1,10 +1,11 @@
 package pcauto
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -92,7 +93,7 @@ func (c *Crawler) withClasses(classes ...string) (*hot.Board, error) {
 		for _, a := range ul.QueryAll("a") {
 			title := strings.TrimSpace(a.Text())
 			url := "https:" + strings.TrimSpace(a.Href())
-			board.AppendTitleURLCatalog(title, url, catalog)
+			board.Append(&hot.Hot{Title: title, URL: url, Catalog: catalog})
 		}
 	}
 	return board, nil

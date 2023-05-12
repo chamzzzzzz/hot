@@ -2,11 +2,12 @@ package tieba
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
-	"time"
 )
 
 const (
@@ -53,7 +54,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		summary := topic.TopicDesc
 		url := strings.ReplaceAll(topic.TopicURL, "amp;", "")
 		date := time.Unix(topic.CreateTime, 0)
-		board.Append3x1(title, summary, url, date)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

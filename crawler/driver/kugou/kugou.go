@@ -2,10 +2,11 @@ package kugou
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -94,7 +95,7 @@ func (c *Crawler) withCatalog(catalog string, board *hot.Board) (*hot.Board, err
 	for _, a := range div.QueryAll("a", "class", "pc_temp_songname") {
 		title := strings.TrimSpace(a.Title())
 		url := strings.TrimSpace(a.Href())
-		board.AppendTitleURLCatalog(title, url, catalog)
+		board.Append(&hot.Hot{Title: title, URL: url, Catalog: catalog})
 	}
 	return board, nil
 }

@@ -3,10 +3,11 @@ package csdn
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -55,10 +56,10 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 				return nil, err
 			}
 			for _, headline := range body.PageData.Data.WwwHeadlines {
-				board.AppendTitleSummaryURL(headline.Title, headline.Description, headline.URL)
+				board.Append(&hot.Hot{Title: headline.Title, Summary: headline.Description, URL: headline.URL})
 			}
 			for _, headhot := range body.PageData.Data.WwwHeadhot {
-				board.AppendTitleSummaryURL(headhot.Title, headhot.Description, headhot.URL)
+				board.Append(&hot.Hot{Title: headhot.Title, Summary: headhot.Description, URL: headhot.URL})
 			}
 			return board, nil
 		}

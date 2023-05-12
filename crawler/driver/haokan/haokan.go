@@ -2,6 +2,7 @@ package haokan
 
 import (
 	"fmt"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -46,7 +47,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, hotword := range body.Data.Response.Hotwords {
-		board.Append1(hotword)
+		board.Append(&hot.Hot{
+			Title: hotword,
+		})
 	}
 	return board, nil
 }

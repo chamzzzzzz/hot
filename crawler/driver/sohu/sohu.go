@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/chamzzzzzz/hot"
-	"github.com/chamzzzzzz/hot/crawler/driver"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/chamzzzzzz/hot"
+	"github.com/chamzzzzzz/hot/crawler/driver"
 )
 
 const (
@@ -72,7 +73,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.Append1(data.ResourceData.ContentData.Title)
+		board.Append(&hot.Hot{
+			Title: data.ResourceData.ContentData.Title,
+		})
 	}
 	return board, nil
 }

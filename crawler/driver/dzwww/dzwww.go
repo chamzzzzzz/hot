@@ -1,10 +1,11 @@
 package dzwww
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -81,7 +82,7 @@ func (c *Crawler) withCatalog(catalog string, board *hot.Board) (*hot.Board, err
 		if !strings.HasPrefix(url, "http") {
 			url = "https:" + url
 		}
-		board.AppendTitleURLCatalog(data.Title, url, catalog)
+		board.Append(&hot.Hot{Title: data.Title, URL: url, Catalog: catalog})
 	}
 	return board, nil
 }

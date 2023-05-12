@@ -43,7 +43,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body {
-		board.AppendTitleURL(data.Title, data.PostURL)
+		board.Append(&hot.Hot{Title: data.Title, URL: data.PostURL})
 	}
 	return board, nil
 }

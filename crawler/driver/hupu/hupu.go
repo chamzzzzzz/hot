@@ -1,10 +1,11 @@
 package hupu
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -88,7 +89,11 @@ func (c *Crawler) withClasses(classes ...string) (*hot.Board, error) {
 			title := strings.TrimSpace(div.Text())
 			url := strings.TrimSpace(a.Href())
 			catalog := classtocatalog(class)
-			board.Append4(title, "", url, catalog)
+			board.Append(&hot.Hot{
+				Title:   title,
+				URL:     url,
+				Catalog: catalog,
+			})
 		}
 	}
 	return board, nil

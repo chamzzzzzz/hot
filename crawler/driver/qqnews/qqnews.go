@@ -2,10 +2,11 @@ package qqnews
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"time"
 )
 
 const (
@@ -55,7 +56,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			if err != nil {
 				return nil, err
 			}
-			board.Append3x1(data.Title, "", data.URL, date)
+			board.Append(&hot.Hot{Title: data.Title, URL: data.URL, PublishDate: date})
 		}
 	}
 	return board, nil

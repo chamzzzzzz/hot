@@ -1,10 +1,11 @@
 package douban
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -63,10 +64,10 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	}
 	for _, hot := range b1.Hots {
-		board.Append0(hot)
+		board.Append(hot)
 	}
 	for _, hot := range b2.Hots {
-		board.Append0(hot)
+		board.Append(hot)
 	}
 	return board, nil
 }
@@ -89,7 +90,11 @@ func (c *Crawler) movie() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, Movie)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: Movie,
+		})
 	}
 	return board, nil
 }
@@ -108,7 +113,11 @@ func (c *Crawler) note() (*hot.Board, error) {
 	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, Note)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: Note,
+		})
 	}
 	return board, nil
 }

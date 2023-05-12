@@ -1,10 +1,11 @@
 package pedaily
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -52,7 +53,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 				title = strings.TrimSpace(p.Text())
 			}
 			if title != "" {
-				board.AppendTitleURL(title, url)
+				board.Append(&hot.Hot{Title: title, URL: url})
 			}
 		}
 	}

@@ -3,10 +3,11 @@ package odaily
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -60,7 +61,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 		for _, topPost := range body.Home.TopPost {
 			url := fmt.Sprintf("https://www.odaily.news/post/%d", topPost.ID)
-			board.AppendTitleSummaryURL(topPost.Title, topPost.Summary, url)
+			board.Append(&hot.Hot{Title: topPost.Title, Summary: topPost.Summary, URL: url})
 		}
 		return board, nil
 	}

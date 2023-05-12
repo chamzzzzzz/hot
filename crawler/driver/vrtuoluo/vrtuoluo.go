@@ -1,10 +1,11 @@
 package vrtuoluo
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -47,7 +48,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		for _, a := range div.QueryAll("a", "class", "title_box text_ellipsis") {
 			title := strings.TrimSpace(a.Text())
 			url := "https://www.vrtuoluo.cn" + strings.TrimSpace(a.Href())
-			board.AppendTitleURL(title, url)
+			board.Append(&hot.Hot{Title: title, URL: url})
 		}
 		break
 	}

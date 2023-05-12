@@ -1,10 +1,11 @@
 package weibo
 
 import (
+	"strconv"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strconv"
 )
 
 const (
@@ -75,7 +76,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if err != nil {
 			return nil, err
 		}
-		board.Append1(a.Text())
+		board.Append(&hot.Hot{
+			Title: a.Text(),
+		})
 	}
 	return board, nil
 }

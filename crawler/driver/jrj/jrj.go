@@ -1,10 +1,11 @@
 package jrj
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -61,7 +62,7 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	} else {
 		for _, hot := range b.Hots {
-			board.Append0(hot)
+			board.Append(hot)
 		}
 	}
 
@@ -69,7 +70,7 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	} else {
 		for _, hot := range b.Hots {
-			board.Append0(hot)
+			board.Append(hot)
 		}
 	}
 
@@ -77,7 +78,7 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	} else {
 		for _, hot := range b.Hots {
-			board.Append0(hot)
+			board.Append(hot)
 		}
 	}
 	return board, nil
@@ -99,7 +100,11 @@ func (c *Crawler) tech() (*hot.Board, error) {
 	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, Tech)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: Tech,
+		})
 	}
 	return board, nil
 }
@@ -120,7 +125,11 @@ func (c *Crawler) house() (*hot.Board, error) {
 	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, House)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: House,
+		})
 	}
 	return board, nil
 }
@@ -142,7 +151,11 @@ func (c *Crawler) finance() (*hot.Board, error) {
 		for _, a := range ul.QueryAll("a") {
 			title := strings.TrimSpace(a.Text())
 			url := strings.TrimSpace(a.Href())
-			board.Append4(title, "", url, Finance)
+			board.Append(&hot.Hot{
+				Title:   title,
+				URL:     url,
+				Catalog: Finance,
+			})
 		}
 	}
 	return board, nil

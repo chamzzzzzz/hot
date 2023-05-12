@@ -1,10 +1,11 @@
 package tianyancha
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -46,7 +47,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	for _, a := range dom.QueryAll("a", "class", "index_key__yzJHB") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.AppendTitleURL(title, url)
+		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 	return board, nil
 }

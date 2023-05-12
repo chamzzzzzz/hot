@@ -2,6 +2,7 @@ package taptap
 
 import (
 	"fmt"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -49,7 +50,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	for _, data := range body.Data {
 		for _, data := range data.Data.Data {
 			for _, data := range data.List {
-				board.Append1(data.Keyword)
+				board.Append(&hot.Hot{
+					Title: data.Keyword,
+				})
 			}
 		}
 	}

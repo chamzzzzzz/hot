@@ -76,7 +76,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if err != nil {
 			return nil, err
 		}
-		board.Append3x1(title, "", url, date)
+		board.Append(&hot.Hot{Title: title, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

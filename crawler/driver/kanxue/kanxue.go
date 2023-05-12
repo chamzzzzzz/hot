@@ -1,10 +1,11 @@
 package kanxue
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -63,10 +64,10 @@ func (c *Crawler) all() (*hot.Board, error) {
 		return nil, err
 	}
 	for _, hot := range b1.Hots {
-		board.Append0(hot)
+		board.Append(hot)
 	}
 	for _, hot := range b2.Hots {
-		board.Append0(hot)
+		board.Append(hot)
 	}
 	return board, nil
 }
@@ -89,7 +90,11 @@ func (c *Crawler) bbs() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Text())
 		url := "https://bbs.pediy.com/" + strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, BBS)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: BBS,
+		})
 	}
 	return board, nil
 }
@@ -111,7 +116,11 @@ func (c *Crawler) news() (*hot.Board, error) {
 		if !strings.HasPrefix(url, "http") {
 			url = "https://" + url
 		}
-		board.Append4(title, "", url, News)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: News,
+		})
 	}
 	return board, nil
 }

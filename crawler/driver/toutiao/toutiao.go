@@ -3,6 +3,7 @@ package toutiao
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -52,7 +53,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if err := json.Unmarshal([]byte(data.Content), content); err != nil {
 			return nil, err
 		}
-		board.Append1(content.RawData.Title)
+		board.Append(&hot.Hot{
+			Title: content.RawData.Title,
+		})
 	}
 	return board, nil
 }

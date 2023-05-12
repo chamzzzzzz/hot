@@ -1,10 +1,11 @@
 package bilibili
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -45,7 +46,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	board := hot.NewBoard(c.Name())
 	for _, keyword := range body.Data.Trending.List {
 		title := strings.TrimSpace(keyword.ShowName)
-		board.Append1(title)
+		board.Append(&hot.Hot{
+			Title: title,
+		})
 	}
 	return board, nil
 }

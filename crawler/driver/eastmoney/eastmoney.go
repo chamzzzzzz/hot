@@ -2,10 +2,11 @@ package eastmoney
 
 import (
 	"fmt"
+	"regexp"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"regexp"
 )
 
 var re = regexp.MustCompile(`//searchadapter\.eastmoney\.com/api/hotkeyword/get\?count=20&token=([A-Z0-9]+)`)
@@ -54,7 +55,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.Append1(data.KeyPhrase)
+		board.Append(&hot.Hot{
+			Title: data.KeyPhrase,
+		})
 	}
 	return board, nil
 }

@@ -1,10 +1,11 @@
 package dongchedi
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -49,7 +50,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			return nil, err
 		}
 		title := strings.TrimSpace(p.Text())
-		board.Append1(title)
+		board.Append(&hot.Hot{
+			Title: title,
+		})
 	}
 	return board, nil
 }

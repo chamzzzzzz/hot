@@ -1,10 +1,11 @@
 package btc8
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -57,7 +58,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	title := strings.TrimSpace(p.Text())
 	url := "https://www.8btc.com" + strings.TrimSpace(a.Href())
-	board.AppendTitleURL(title, url)
+	board.Append(&hot.Hot{Title: title, URL: url})
 	for _, a := range div.QueryAll("a", "class", "link-dark-major") {
 		p, err = a.Find("p")
 		if err != nil {
@@ -65,7 +66,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 		title = strings.TrimSpace(p.Text())
 		url = "https://www.8btc.com" + strings.TrimSpace(a.Href())
-		board.AppendTitleURL(title, url)
+		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 	return board, nil
 }

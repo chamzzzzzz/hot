@@ -1,10 +1,11 @@
 package kr36
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -68,7 +69,12 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			title := strings.TrimSpace(a1.Text())
 			summary := strings.TrimSpace(a2.Text())
 			url := "https://36kr.com" + strings.TrimSpace(a1.Href())
-			board.Append4(title, summary, url, catalog)
+			board.Append(&hot.Hot{
+				Title:   title,
+				Summary: summary,
+				URL:     url,
+				Catalog: catalog,
+			})
 		}
 	}
 	return board, nil

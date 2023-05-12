@@ -1,10 +1,11 @@
 package baidu
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -53,7 +54,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(div01.Text())
 		summary := strings.TrimSpace(div02.Text())
-		board.Append2(title, summary)
+		board.Append(&hot.Hot{Title: title, Summary: summary})
 	}
 	return board, nil
 }

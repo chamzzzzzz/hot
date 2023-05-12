@@ -2,11 +2,12 @@ package pojie52
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
-	"time"
 )
 
 const (
@@ -75,7 +76,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if err != nil {
 			return nil, err
 		}
-		board.Append3x1(title, "", url, date)
+		board.Append(&hot.Hot{Title: title, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

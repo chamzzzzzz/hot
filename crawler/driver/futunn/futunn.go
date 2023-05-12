@@ -1,10 +1,11 @@
 package futunn
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -51,7 +52,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data.HotNews {
-		board.AppendTitleURL(strings.TrimSpace(data.Title), strings.TrimSpace((data.URL)))
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: strings.TrimSpace(data.URL)})
 	}
 	return board, nil
 }

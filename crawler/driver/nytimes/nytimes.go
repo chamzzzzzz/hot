@@ -2,6 +2,7 @@ package nytimes
 
 import (
 	"fmt"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -47,7 +48,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, daily := range body.List.Daily {
-		board.AppendTitleSummaryURL(daily.Headline, daily.Summary, daily.URL)
+		board.Append(&hot.Hot{Title: daily.Headline, Summary: daily.Summary, URL: daily.URL})
 	}
 	return board, nil
 }

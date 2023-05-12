@@ -3,6 +3,7 @@ package infoq
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -51,7 +52,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
 		url := "https://www.infoq.cn/article/" + data.UUID
-		board.AppendTitleSummaryURL(data.ArticleTitle, data.ArticleSummary, url)
+		board.Append(&hot.Hot{Title: data.ArticleTitle, Summary: data.ArticleSummary, URL: url})
 	}
 	return board, nil
 }

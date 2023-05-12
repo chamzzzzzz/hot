@@ -2,6 +2,7 @@ package futu
 
 import (
 	"fmt"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -46,7 +47,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.AppendTitleURL(data.Title, data.URL)
+		board.Append(&hot.Hot{Title: data.Title, URL: data.URL})
 	}
 	return board, nil
 }

@@ -1,11 +1,12 @@
 package wsj
 
 import (
+	"strings"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
-	"time"
 )
 
 const (
@@ -58,7 +59,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if i >= 0 && j >= 0 {
 			summary = summary[i+3 : j]
 		}
-		board.Append3x1(title, summary, url, date)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

@@ -1,12 +1,13 @@
 package cyzone
 
 import (
-	"github.com/chamzzzzzz/hot"
-	"github.com/chamzzzzzz/hot/crawler/driver"
-	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/chamzzzzzz/hot"
+	"github.com/chamzzzzzz/hot/crawler/driver"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
@@ -68,7 +69,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		summary := strings.TrimSpace(p.Text())
 		url := "https:" + strings.TrimSpace(a.Href())
 		date := time.Unix(timestamp, 0)
-		board.Append3x1(title, summary, url, date)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

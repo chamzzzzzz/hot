@@ -1,11 +1,12 @@
 package bbc
 
 import (
+	"strings"
+	"time"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
-	"time"
 )
 
 const (
@@ -49,7 +50,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		summary := strings.TrimSpace(record.Promo.Summary)
 		url := "https://www.bbc.com/" + strings.TrimSpace(strings.Trim(record.Promo.ID, "urn:bbc:ares::asset:"))
 		date := time.UnixMilli(record.Promo.Timestamp)
-		board.Append3x1(title, summary, url, date)
+		board.Append(&hot.Hot{Title: title, Summary: summary, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

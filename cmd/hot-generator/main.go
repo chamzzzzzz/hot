@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"github.com/urfave/cli/v2"
 )
 
 var (
@@ -136,7 +137,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.AppendTitleURL(strings.TrimSpace(data.Title), strings.TrimSpace((data.URL)))
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: strings.TrimSpace(data.URL)})
 	}
 {{- else if .XML}}
 	body := &body{}
@@ -146,7 +147,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, data := range body.Data {
-		board.AppendTitleURL(strings.TrimSpace(data.Title), strings.TrimSpace((data.URL)))
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: strings.TrimSpace(data.URL)}
 	}
 {{- else}}
 	dom := &httputil.DOM{}
@@ -158,7 +159,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	for _, a := range dom.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.AppendTitleURL(title, url)
+		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 {{- end}}
 	return board, nil

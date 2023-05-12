@@ -1,10 +1,11 @@
 package cls
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -46,7 +47,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	for _, a := range dom.QueryAll("a", "class", "f-s-15 c-222 b-c-222222 line2 underline-width1 ") {
 		title := strings.TrimSpace(a.Text())
 		url := "https://www.cls.cn" + strings.TrimSpace(a.Href())
-		board.AppendTitleURL(title, url)
+		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 	return board, nil
 }

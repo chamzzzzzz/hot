@@ -55,7 +55,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(h2.Text())
 		url := "https://www.yystv.cn" + strings.TrimSpace(a.Href())
-		board.AppendTitleURL(title, url)
+		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 	return board, nil
 }

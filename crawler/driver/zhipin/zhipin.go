@@ -1,10 +1,11 @@
 package zhipin
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -88,7 +89,11 @@ func (c *Crawler) question(board *hot.Board) (*hot.Board, error) {
 		}
 		title := strings.TrimSpace(a.Text())
 		url := strings.TrimSpace(a.Href())
-		board.Append4(title, "", url, Question)
+		board.Append(&hot.Hot{
+			Title:   title,
+			URL:     url,
+			Catalog: Question,
+		})
 	}
 	return board, nil
 }
@@ -118,7 +123,12 @@ func (c *Crawler) hotsearchjob(board *hot.Board) (*hot.Board, error) {
 		title := strings.TrimSpace(a.Text())
 		summary := strings.TrimSpace(span.Text())
 		url := strings.TrimSpace(a.Href())
-		board.Append4(title, summary, url, HotSearchJob)
+		board.Append(&hot.Hot{
+			Title:   title,
+			Summary: summary,
+			URL:     url,
+			Catalog: HotSearchJob,
+		})
 	}
 	return board, nil
 }
@@ -148,7 +158,12 @@ func (c *Crawler) hotrecruitingjob(board *hot.Board) (*hot.Board, error) {
 		title := strings.Join(strings.Fields(strings.TrimSpace(a.FullText())), "---")
 		summary := strings.Join(strings.Fields(strings.TrimSpace(a2.FullText())), "---")
 		url := "https://www.zhipin.com" + strings.TrimSpace(a.Href())
-		board.Append4(title, summary, url, HotRecruitingJob)
+		board.Append(&hot.Hot{
+			Title:   title,
+			Summary: summary,
+			URL:     url,
+			Catalog: HotRecruitingJob,
+		})
 	}
 	return board, nil
 }

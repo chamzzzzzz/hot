@@ -2,6 +2,7 @@ package sogou
 
 import (
 	"encoding/json"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
@@ -49,7 +50,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 
 	board := hot.NewBoard(c.Name())
 	for _, word := range body {
-		board.Append1(word)
+		board.Append(&hot.Hot{
+			Title: word,
+		})
 	}
 	return board, nil
 }

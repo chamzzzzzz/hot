@@ -1,10 +1,11 @@
 package zaker
 
 import (
+	"strings"
+
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/hot/crawler/httputil"
-	"strings"
 )
 
 const (
@@ -49,7 +50,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 	for _, a := range div.QueryAll("a") {
 		title := strings.TrimSpace(a.Text())
-		board.Append1(title)
+		board.Append(&hot.Hot{
+			Title: title,
+		})
 	}
 	return board, nil
 }

@@ -1,12 +1,13 @@
 package sputniknews
 
 import (
-	"github.com/chamzzzzzz/hot"
-	"github.com/chamzzzzzz/hot/crawler/driver"
-	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/chamzzzzzz/hot"
+	"github.com/chamzzzzzz/hot/crawler/driver"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
@@ -67,7 +68,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		title := strings.TrimSpace(a.Title())
 		url := "https://www.sputniknews.cn" + strings.TrimSpace(a.Href())
 		date := time.Unix(timestamp, 0)
-		board.Append3x1(title, "", url, date)
+		board.Append(&hot.Hot{Title: title, URL: url, PublishDate: date})
 	}
 	return board, nil
 }

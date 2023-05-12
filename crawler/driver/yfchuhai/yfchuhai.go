@@ -1,12 +1,13 @@
 package yfchuhai
 
 import (
-	"github.com/chamzzzzzz/hot"
-	"github.com/chamzzzzzz/hot/crawler/driver"
-	"github.com/chamzzzzzz/hot/crawler/httputil"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/chamzzzzzz/hot"
+	"github.com/chamzzzzzz/hot/crawler/driver"
+	"github.com/chamzzzzzz/hot/crawler/httputil"
 )
 
 const (
@@ -60,7 +61,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if err != nil {
 			return nil, err
 		}
-		board.AppendTitleURLDate(title, url, date)
+		board.Append(&hot.Hot{Title: title, URL: url, PublishDate: date})
 	}
 	return board, nil
 }
