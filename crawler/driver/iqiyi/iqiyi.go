@@ -45,7 +45,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, a := range dom.QueryAll("a", "class", "rvi__box rvi__box--m rvi__box--hover") {
+	for _, a := range dom.QueryAll("a", "class", "rvi__box") {
 		div, err := a.Find("div", "class", "rvi__tit1")
 		if err != nil {
 			return nil, err
