@@ -31,7 +31,13 @@ var (
 	tpl    *template.Template
 )
 
-func init() {
+type HotCollector struct {
+	option   crawler.Option
+	crawlers []*crawler.Crawler
+	archiver hot.Archiver
+}
+
+func (hc *HotCollector) Start() error {
 	flag.StringVar(&addr, "addr", addr, "notification smtp addr")
 	flag.StringVar(&user, "user", user, "notification smtp user")
 	flag.StringVar(&pass, "pass", pass, "notification smtp pass")
@@ -40,15 +46,7 @@ func init() {
 		"bencoding": mime.BEncoding.Encode,
 	}
 	tpl = template.Must(template.New("mail").Funcs(funcs).Parse(source))
-}
 
-type HotCollector struct {
-	option   crawler.Option
-	crawlers []*crawler.Crawler
-	archiver hot.Archiver
-}
-
-func (hc *HotCollector) Start() error {
 	driverName := os.Getenv("HOT_COLLECT_DATABASE_DRIVER_NAME")
 	dataSourceName := os.Getenv("HOT_COLLECTOR_DATABASE_DATA_SOURCE_NAME")
 	if driverName == "" {
