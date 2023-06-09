@@ -96,28 +96,63 @@ func archive() {
 	t := time.Now()
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	var errmsgs []string
+	failed := make(map[int][]string)
 	for _, c := range crawlers {
 		wg.Add(1)
 		go func(c *crawler.Crawler) {
 			defer wg.Done()
 			board, err := c.Crawl()
 			if err != nil {
-				errmsg := fmt.Sprintf("[%s] crawl failed, err=%s\n", c.Name(), err)
-				log.Print(errmsg)
+				log.Printf("[%s] crawl failed, err=%s\n", c.Name(), err)
 				mu.Lock()
-				errmsgs = append(errmsgs, errmsg)
+				failed[1] = append(failed[1], c.Name())
 				mu.Unlock()
 				return
 			}
-			archiver.Archive(board)
+			if len(board.Hots) == 0 {
+				log.Printf("[%s] crawl nothing\n", c.Name())
+				mu.Lock()
+				failed[2] = append(failed[2], c.Name())
+				mu.Unlock()
+				return
+			}
+			_, err = archiver.Archive(board)
+			if err != nil {
+				log.Printf("[%s] archive failed, err=%s\n", c.Name(), err)
+				mu.Lock()
+				failed[3] = append(failed[3], c.Name())
+				mu.Unlock()
+				return
+			}
 		}(c)
 	}
 	wg.Wait()
 	log.Printf("archive used %v\n", time.Since(t))
 	log.Printf("finish archive at %s\n", time.Now().Format("2006-01-02 15:04:05"))
-	if len(errmsgs) > 0 {
-		notification("「HA」异常发生", strings.Join(errmsgs, ""))
+	if len(failed) > 0 {
+		body := ""
+		if len(failed[1]) > 0 {
+			body += "获取失败的榜单：\n"
+			for _, name := range failed[1] {
+				body += fmt.Sprintf("%s\n", name)
+			}
+			body += "\n"
+		}
+		if len(failed[2]) > 0 {
+			body += "获取空白的榜单：\n"
+			for _, name := range failed[2] {
+				body += fmt.Sprintf("%s\n", name)
+			}
+			body += "\n"
+		}
+		if len(failed[3]) > 0 {
+			body += "归档失败的榜单：\n"
+			for _, name := range failed[3] {
+				body += fmt.Sprintf("%s\n", name)
+			}
+			body += "\n"
+		}
+		notification("「HA」异常发生", body)
 	}
 }
 
@@ -142,7 +177,7 @@ func notification(subject, body string) {
 	}
 
 	data := Data{
-		From:    fmt.Sprintf("%s <%s>", mime.BEncoding.Encode("UTF-8", "HA Monitor"), user),
+		From:    fmt.Sprintf("%s <%s>", mime.BEncoding.Encode("UTF-8", "Monitor"), user),
 		To:      user,
 		Subject: mime.BEncoding.Encode("UTF-8", subject),
 		Body:    body,
