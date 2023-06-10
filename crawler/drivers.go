@@ -59,7 +59,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/im2maker"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoq"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoqcom"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/investing"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/iqiyi"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/iresearch"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ithome"
@@ -118,7 +117,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/v2ex"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/voacantonese"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/voachinese"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/voanews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/vrtuoluo"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/wallstreetcn"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/weibo"
@@ -135,6 +133,5 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zaobao"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zdnet"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zhihu"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/zhipin"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zol"
 )
