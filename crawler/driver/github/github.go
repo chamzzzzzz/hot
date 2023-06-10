@@ -10,7 +10,7 @@ import (
 
 const (
 	DriverName  = "github"
-	ProxySwitch = false
+	ProxySwitch = true
 	URL         = "https://github.com/trending"
 )
 
