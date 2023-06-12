@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/chamzzzzzz/supersimplesoup v0.0.0-20221231053842-410947423f1b
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/urfave/cli/v2 v2.20.3
 	golang.org/x/text v0.5.0
 )

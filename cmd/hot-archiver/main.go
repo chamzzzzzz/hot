@@ -146,6 +146,16 @@ func archive() {
 			defer wg.Done()
 			board, err := c.Crawl()
 			if err != nil {
+				for i := 0; i < 4; i++ {
+					log.Printf("[%s] crawl failed, will retry(%d) after 5 seconds. err=%s\n", c.Name(), i+1, err)
+					time.Sleep(5 * time.Second)
+					board, err = c.Crawl()
+					if err == nil {
+						break
+					}
+				}
+			}
+			if err != nil {
 				log.Printf("[%s] crawl failed, err=%s\n", c.Name(), err)
 				mu.Lock()
 				failed[1] = append(failed[1], c.Name())
