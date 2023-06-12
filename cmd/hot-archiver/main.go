@@ -24,8 +24,11 @@ var (
 	archiver = &file.Archiver{}
 	crawlers []*crawler.Crawler
 	boards   = map[string][]string{
-		"china":  {"baidu", "weibo", "toutiao", "douyin", "kuaishou", "bilibili"},
-		"global": {"wsj", "bbc"},
+		"china-popular": {"baidu", "weibo", "toutiao", "douyin", "kuaishou", "bilibili"},
+		"global": {
+			"bbc", "cnbeta", "economist", "ft", "ftchinese", "github", "hket", "kyodonews", "nytimes",
+			"rfa", "theguardian", "thehill", "timecom", "v2ex", "voacantonese", "voachinese", "wikipedia", "wsj",
+		},
 	}
 )
 
@@ -39,7 +42,7 @@ var (
 
 func main() {
 	flag.StringVar(&proxy, "proxy", proxy, "proxy url")
-	flag.StringVar(&board, "board", board, "china, global, all, or custom comma separated driver names")
+	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
 	flag.StringVar(&addr, "addr", addr, "notification smtp addr")
 	flag.StringVar(&user, "user", user, "notification smtp user")
 	flag.StringVar(&pass, "pass", pass, "notification smtp pass")
@@ -75,10 +78,20 @@ func main() {
 func parse(board string) (string, []string) {
 	var drivers []string
 	if board == "" {
-		board = "china"
+		board = "china-popular"
 	}
 	if board == "all" {
 		drivers = crawler.Drivers()
+	} else if board == "china" {
+		m := make(map[string]bool)
+		for _, v := range boards["global"] {
+			m[v] = true
+		}
+		for _, name := range crawler.Drivers() {
+			if !m[name] {
+				drivers = append(drivers, name)
+			}
+		}
 	} else {
 		_driver, ok := boards[board]
 		if !ok {
