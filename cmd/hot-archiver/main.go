@@ -14,14 +14,20 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/chamzzzzzz/hot"
+	"github.com/chamzzzzzz/hot/archiver/database"
 	"github.com/chamzzzzzz/hot/archiver/file"
 	"github.com/chamzzzzzz/hot/crawler"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
 	proxy    = os.Getenv("HOT_ARCHIVER_PROXY")
 	board    = os.Getenv("HOT_ARCHIVER_BOARD")
-	archiver = &file.Archiver{}
+	mode     = os.Getenv("HOT_ARCHIVER_MODE")
+	dn       = os.Getenv("HOT_ARCHIVER_DATABASE_DRIVER_NAME")
+	dsn      = os.Getenv("HOT_ARCHIVER_DATABASE_DATA_SOURCE_NAME")
+	archiver hot.Archiver
 	crawlers []*crawler.Crawler
 	boards   = map[string][]string{
 		"china-popular": {"baidu", "weibo", "toutiao", "douyin", "kuaishou", "bilibili"},
@@ -43,6 +49,9 @@ var (
 func main() {
 	flag.StringVar(&proxy, "proxy", proxy, "proxy url")
 	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
+	flag.StringVar(&mode, "mode", mode, "file(default), database")
+	flag.StringVar(&dn, "dn", dn, "database driver name")
+	flag.StringVar(&dsn, "dsn", dsn, "database data source name")
 	flag.StringVar(&addr, "addr", addr, "notification smtp addr")
 	flag.StringVar(&user, "user", user, "notification smtp user")
 	flag.StringVar(&pass, "pass", pass, "notification smtp pass")
@@ -52,6 +61,27 @@ func main() {
 		"bencoding": mime.BEncoding.Encode,
 	}
 	tpl = template.Must(template.New("mail").Funcs(funcs).Parse(source))
+
+	if mode == "" {
+		mode = "file"
+	}
+	switch mode {
+	case "database":
+		if dn == "" {
+			log.Println("database driver name is empty")
+			return
+		}
+		if dsn == "" {
+			log.Println("database data source name is empty")
+			return
+		}
+		archiver = &database.Archiver{DriverName: dn, DataSourceName: dsn}
+	case "file":
+		archiver = &file.Archiver{}
+	default:
+		log.Printf("unknown mode %s\n", mode)
+		return
+	}
 
 	board, drivers := parse(board)
 	log.Printf("proxy=%s\n", proxy)

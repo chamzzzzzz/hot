@@ -3,10 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/chamzzzzzz/hot"
-	_ "github.com/go-sql-driver/mysql"
 	"strings"
 	"time"
+
+	"github.com/chamzzzzzz/hot"
 )
 
 type Archiver struct {
@@ -15,7 +15,7 @@ type Archiver struct {
 }
 
 func (a *Archiver) Name() string {
-	return "database"
+	return "database-archiver"
 }
 
 func (a *Archiver) Archive(board *hot.Board) (archived int, err error) {
