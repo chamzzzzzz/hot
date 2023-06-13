@@ -22,14 +22,14 @@ import (
 )
 
 var (
-	proxy    = os.Getenv("HOT_ARCHIVER_PROXY")
-	board    = os.Getenv("HOT_ARCHIVER_BOARD")
-	mode     = os.Getenv("HOT_ARCHIVER_MODE")
-	dn       = os.Getenv("HOT_ARCHIVER_DATABASE_DRIVER_NAME")
-	dsn      = os.Getenv("HOT_ARCHIVER_DATABASE_DATA_SOURCE_NAME")
-	archiver hot.Archiver
-	crawlers []*crawler.Crawler
-	boards   = map[string][]string{
+	proxy     = os.Getenv("HOT_ARCHIVER_PROXY")
+	board     = os.Getenv("HOT_ARCHIVER_BOARD")
+	mode      = os.Getenv("HOT_ARCHIVER_MODE")
+	dn        = os.Getenv("HOT_ARCHIVER_DATABASE_DRIVER_NAME")
+	dsn       = os.Getenv("HOT_ARCHIVER_DATABASE_DATA_SOURCE_NAME")
+	archivers []hot.Archiver
+	crawlers  []*crawler.Crawler
+	boards    = map[string][]string{
 		"china-popular": {"baidu", "weibo", "toutiao", "douyin", "kuaishou", "bilibili"},
 		"global": {
 			"bbc", "cnbeta", "economist", "ft", "ftchinese", "github", "hket", "kyodonews", "nytimes",
@@ -49,7 +49,7 @@ var (
 func main() {
 	flag.StringVar(&proxy, "proxy", proxy, "proxy url")
 	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
-	flag.StringVar(&mode, "mode", mode, "file(default), database")
+	flag.StringVar(&mode, "mode", mode, "file(default), database, all")
 	flag.StringVar(&dn, "dn", dn, "database driver name")
 	flag.StringVar(&dsn, "dsn", dsn, "database data source name")
 	flag.StringVar(&addr, "addr", addr, "notification smtp addr")
@@ -65,29 +65,40 @@ func main() {
 	if mode == "" {
 		mode = "file"
 	}
-	switch mode {
-	case "database":
-		if dn == "" {
-			log.Println("database driver name is empty")
+	if mode == "all" {
+		mode = "file,database"
+	}
+	for _, m := range strings.Split(mode, ",") {
+		switch m {
+		case "database":
+			if dn == "" {
+				log.Println("database driver name is empty")
+				return
+			}
+			if dsn == "" {
+				log.Println("database data source name is empty")
+				return
+			}
+			a := &database.Archiver{DriverName: dn, DataSourceName: dsn}
+			archivers = append(archivers, a)
+		case "file":
+			a := &file.Archiver{}
+			archivers = append(archivers, a)
+		default:
+			log.Printf("unknown mode %s\n", mode)
 			return
 		}
-		if dsn == "" {
-			log.Println("database data source name is empty")
-			return
-		}
-		archiver = &database.Archiver{DriverName: dn, DataSourceName: dsn}
-	case "file":
-		archiver = &file.Archiver{}
-	default:
-		log.Printf("unknown mode %s\n", mode)
-		return
 	}
 
 	board, drivers := parse(board)
 	log.Printf("proxy=%s\n", proxy)
 	log.Printf("board=%s\n", board)
-	log.Printf("drivers=%v\n", drivers)
-	log.Printf("archiver=%s\n", archiver.Name())
+	for _, driver := range drivers {
+		log.Printf("driver=%s\n", driver)
+	}
+	for _, archiver := range archivers {
+		log.Printf("archiver=%s\n", archiver.Name())
+	}
 	for _, driverName := range drivers {
 		c, err := crawler.Open(crawler.Option{DriverName: driverName, Proxy: proxy})
 		if err != nil {
@@ -169,13 +180,15 @@ func archive() {
 				mu.Unlock()
 				return
 			}
-			_, err = archiver.Archive(board)
-			if err != nil {
-				log.Printf("[%s] archive failed, err=%s\n", c.Name(), err)
-				mu.Lock()
-				failed[3] = append(failed[3], c.Name())
-				mu.Unlock()
-				return
+			for _, archiver := range archivers {
+				_, err = archiver.Archive(board)
+				if err != nil {
+					log.Printf("[%s] archive failed, err=%s\n", c.Name(), err)
+					mu.Lock()
+					failed[3] = append(failed[3], c.Name())
+					mu.Unlock()
+					return
+				}
 			}
 		}(c)
 	}
