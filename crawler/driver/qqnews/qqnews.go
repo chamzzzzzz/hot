@@ -52,6 +52,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 			if data.URL == "" {
 				continue
 			}
+			if data.Time == "" {
+				continue
+			}
 			date, err := time.ParseInLocation("2006-01-02 15:04:05", data.Time, time.Local)
 			if err != nil {
 				return nil, err
