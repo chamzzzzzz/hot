@@ -44,7 +44,15 @@ var (
 	pass   = os.Getenv("HOT_ARCHIVER_SMTP_PASS")
 	source = "From: {{.From}}\r\nTo: {{.To}}\r\nSubject: {{.Subject}}\r\n\r\n{{.Body}}"
 	tpl    *template.Template
+	stats  = make(map[string]*stat)
 )
+
+type stat struct {
+	Count             int
+	CrawlFailCount    int
+	CrawlNothingCount int
+	ArchiveFailCount  int
+}
 
 func main() {
 	flag.StringVar(&proxy, "proxy", proxy, "proxy url")
@@ -106,6 +114,7 @@ func main() {
 			return
 		}
 		crawlers = append(crawlers, c)
+		stats[driverName] = &stat{}
 	}
 	for {
 		archive()
@@ -150,11 +159,13 @@ func archive() {
 	t := time.Now()
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	failed := make(map[int][]string)
 	for _, c := range crawlers {
 		wg.Add(1)
 		go func(c *crawler.Crawler) {
 			defer wg.Done()
+			mu.Lock()
+			stats[c.Name()].Count++
+			mu.Unlock()
 			board, err := c.Crawl()
 			if err != nil {
 				for i := 0; i < 4; i++ {
@@ -169,14 +180,14 @@ func archive() {
 			if err != nil {
 				log.Printf("[%s] crawl failed, err=%s\n", c.Name(), err)
 				mu.Lock()
-				failed[1] = append(failed[1], c.Name())
+				stats[c.Name()].CrawlFailCount++
 				mu.Unlock()
 				return
 			}
 			if len(board.Hots) == 0 {
 				log.Printf("[%s] crawl nothing\n", c.Name())
 				mu.Lock()
-				failed[2] = append(failed[2], c.Name())
+				stats[c.Name()].CrawlNothingCount++
 				mu.Unlock()
 				return
 			}
@@ -185,7 +196,7 @@ func archive() {
 				if err != nil {
 					log.Printf("[%s] archive failed, err=%s\n", c.Name(), err)
 					mu.Lock()
-					failed[3] = append(failed[3], c.Name())
+					stats[c.Name()].ArchiveFailCount++
 					mu.Unlock()
 					return
 				}
@@ -195,34 +206,10 @@ func archive() {
 	wg.Wait()
 	log.Printf("archive used %v\n", time.Since(t))
 	log.Printf("finish archive at %s\n", time.Now().Format("2006-01-02 15:04:05"))
-	if len(failed) > 0 {
-		body := ""
-		if len(failed[1]) > 0 {
-			body += "获取失败的榜单：\n"
-			for _, name := range failed[1] {
-				body += fmt.Sprintf("%s\n", name)
-			}
-			body += "\n"
-		}
-		if len(failed[2]) > 0 {
-			body += "获取空白的榜单：\n"
-			for _, name := range failed[2] {
-				body += fmt.Sprintf("%s\n", name)
-			}
-			body += "\n"
-		}
-		if len(failed[3]) > 0 {
-			body += "归档失败的榜单：\n"
-			for _, name := range failed[3] {
-				body += fmt.Sprintf("%s\n", name)
-			}
-			body += "\n"
-		}
-		notification("「HA」异常发生", body)
-	}
+	notification()
 }
 
-func notification(subject, body string) {
+func notification() {
 	type Data struct {
 		From    string
 		To      string
@@ -233,6 +220,51 @@ func notification(subject, body string) {
 	if addr == "" {
 		log.Printf("send notification skip. addr is empty\n")
 		return
+	}
+
+	now := time.Now()
+	if now.Hour() != 19 {
+		log.Printf("send notification skip. time is not 19:00\n")
+		return
+	}
+
+	var failed = make(map[int]string)
+	for _, c := range crawlers {
+		s := stats[c.Name()]
+		if s.CrawlFailCount > 0 {
+			failed[1] += fmt.Sprintf("%s (%d/%d)\n", c.Name(), s.CrawlFailCount, s.Count)
+		}
+		if s.CrawlNothingCount > 0 {
+			failed[2] += fmt.Sprintf("%s (%d/%d)\n", c.Name(), s.CrawlNothingCount, s.Count)
+		}
+		if s.ArchiveFailCount > 0 {
+			failed[3] += fmt.Sprintf("%s (%d/%d)\n", c.Name(), s.ArchiveFailCount, s.Count)
+		}
+		s.Count = 0
+		s.CrawlFailCount = 0
+		s.CrawlNothingCount = 0
+		s.ArchiveFailCount = 0
+	}
+	if len(failed) == 0 {
+		log.Printf("send notification skip. no failed\n")
+		return
+	}
+
+	subject := "「HA」异常发生"
+	body := ""
+	for i := 1; i <= 3; i++ {
+		if failed[i] != "" {
+			desc := ""
+			switch i {
+			case 1:
+				desc = "获取失败的榜单："
+			case 2:
+				desc = "获取空白的榜单："
+			case 3:
+				desc = "归档失败的榜单："
+			}
+			body += fmt.Sprintf("%s\n%s\n", desc, failed[i])
+		}
 	}
 
 	log.Printf("sending notification...")
