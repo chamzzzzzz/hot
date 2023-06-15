@@ -133,5 +133,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zaker"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zaobao"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zdnet"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/zhihu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/zol"
 )
