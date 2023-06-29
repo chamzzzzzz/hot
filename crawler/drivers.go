@@ -123,7 +123,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/wsj"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/xueqiu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/yesky"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/yfchuhai"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/yicai"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/yiche"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/youxituoluo"
