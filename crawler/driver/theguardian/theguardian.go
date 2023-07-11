@@ -1,6 +1,7 @@
 package theguardian
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/chamzzzzzz/hot"
@@ -44,13 +45,21 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, li := range dom.QueryAll("li", "class", "most-popular__item") {
-		a, err := li.Find("a", "class", "js-headline-text")
+	for _, a := range dom.Query("ol", "class", "dcr-hqoq27").QueryAll("a") {
+		h4, err := a.Find("h4", "class", "dcr-n4owjk")
 		if err != nil {
 			return nil, err
 		}
-		title := strings.TrimSpace(a.Text())
+		spans := h4.QueryAll("span")
+		if len(spans) == 0 {
+			return nil, fmt.Errorf("span not found")
+		}
+		span := spans[len(spans)-1]
+		title := strings.TrimSpace(span.Text())
 		url := strings.TrimSpace(a.Href())
+		if !strings.HasPrefix(url, "http") {
+			url = "https://www.theguardian.com" + url
+		}
 		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 	return board, nil
