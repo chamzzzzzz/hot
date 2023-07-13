@@ -12,7 +12,7 @@ import (
 const (
 	DriverName  = "takungpao"
 	ProxySwitch = false
-	URL         = "https://www.takungpao.com"
+	URL         = "http://www.takungpao.com"
 )
 
 type Driver struct {
