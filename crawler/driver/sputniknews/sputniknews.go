@@ -1,9 +1,7 @@
 package sputniknews
 
 import (
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/chamzzzzzz/hot"
 	"github.com/chamzzzzzz/hot/crawler/driver"
@@ -51,24 +49,9 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		return nil, err
 	}
 	for _, a := range div.QueryAll("a", "class", "cell-list__item m-no-image") {
-		span, err := a.Find("span", "class", "cell__controls-date")
-		if err != nil {
-			return nil, err
-		}
-		span, err = span.Find("span")
-		if err != nil {
-			return nil, err
-		}
-
-		timestamp, err := strconv.ParseInt(span.Attribute("data-unixtime"), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-
 		title := strings.TrimSpace(a.Title())
 		url := "https://www.sputniknews.cn" + strings.TrimSpace(a.Href())
-		date := time.Unix(timestamp, 0)
-		board.Append(&hot.Hot{Title: title, URL: url, PublishDate: date})
+		board.Append(&hot.Hot{Title: title, URL: url})
 	}
 	return board, nil
 }
