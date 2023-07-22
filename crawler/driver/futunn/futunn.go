@@ -79,7 +79,6 @@ type body struct {
 			Title string `json:"title"`
 			URL   string `json:"url"`
 		} `json:"hotNews"`
-		UpdatedAt string `json:"updatedAt"`
 	} `json:"data"`
 }
 
