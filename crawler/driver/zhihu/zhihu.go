@@ -11,7 +11,7 @@ import (
 const (
 	DriverName  = "zhihu"
 	ProxySwitch = false
-	URL         = "https://www.zhihu.com/topsearch"
+	URL         = "https://www.zhihu.com/api/v4/search/top_search"
 )
 
 type Driver struct {
@@ -38,17 +38,23 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	dom := &httputil.DOM{}
-	if err := httputil.Request("GET", URL, nil, "dom", dom, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
+	body := &body{}
+	if err := httputil.Request("GET", URL, nil, "json", body, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
 		return nil, err
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.QueryAll("div", "class", "TopSearchMain-title") {
-		title := strings.TrimSpace(div.Text())
-		board.Append(&hot.Hot{
-			Title: title,
-		})
+	for _, data := range body.TopSearch.Words {
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.DisplayQuery)})
 	}
 	return board, nil
+}
+
+type body struct {
+	TopSearch struct {
+		Words []struct {
+			Query        string `json:"query"`
+			DisplayQuery string `json:"display_query"`
+		} `json:"words"`
+	} `json:"top_search"`
 }
