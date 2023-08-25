@@ -32,8 +32,8 @@ var (
 	boards    = map[string][]string{
 		"china-popular": {"baidu", "weibo", "toutiao", "douyin", "kuaishou", "bilibili"},
 		"global": {
-			"bbc", "cnbeta", "economist", "ft", "ftchinese", "github", "hket", "kyodonews", "nytimes",
-			"rfa", "theguardian", "thehill", "timecom", "v2ex", "voacantonese", "voachinese", "wikipedia", "wsj",
+			"cnbeta", "economist", "ft", "ftchinese", "github", "hket", "kyodonews", "nytimes",
+			"rfa", "thehill", "timecom", "v2ex", "voacantonese", "voachinese", "wikipedia", "wsj",
 		},
 	}
 )
