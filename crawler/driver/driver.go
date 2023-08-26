@@ -2,11 +2,13 @@ package driver
 
 import (
 	"fmt"
-	"github.com/chamzzzzzz/hot"
 	"net/url"
 	"os"
 	"sort"
 	"sync"
+	"time"
+
+	"github.com/chamzzzzzz/hot"
 )
 
 type Option struct {
@@ -16,6 +18,7 @@ type Option struct {
 	Proxy       string
 	Cookie      string
 	Catalog     string
+	Timeout     time.Duration
 	Raw         string
 }
 
@@ -31,6 +34,16 @@ func ParseOption(raw string) (*Option, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	var duration time.Duration
+	timeout := v.Get("timeout")
+	if timeout != "" {
+		duration, err = time.ParseDuration(timeout)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	o := &Option{
 		ID:          v.Get("id"),
 		DriverName:  v.Get("drivername"),
@@ -38,6 +51,7 @@ func ParseOption(raw string) (*Option, error) {
 		ProxySwitch: v.Get("proxyswitch"),
 		Cookie:      v.Get("cookie"),
 		Catalog:     v.Get("catalog"),
+		Timeout:     duration,
 		Raw:         raw,
 	}
 	if o.ID == "" {
@@ -68,6 +82,9 @@ func (o *Option) Encode() string {
 	}
 	if o.Catalog != "" {
 		v.Set("catalog", o.Catalog)
+	}
+	if o.Timeout != 0 {
+		v.Set("timeout", o.Timeout.String())
 	}
 	return v.Encode()
 }

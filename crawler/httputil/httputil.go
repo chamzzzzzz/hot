@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/supersimplesoup"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
-	"io"
-	"net/http"
-	"net/url"
 )
 
 type Option struct {
@@ -19,11 +21,13 @@ type Option struct {
 	Header          http.Header
 	ContentEncoding string
 	TrimPrefix      string
+	Timeout         time.Duration
 }
 
 func NewOption(option driver.Option, proxyswitch bool) *Option {
 	o := &Option{
-		Header: make(http.Header),
+		Header:  make(http.Header),
+		Timeout: option.Timeout,
 	}
 	if option.ProxySwitch != "" || proxyswitch {
 		o.Proxy = option.Proxy
@@ -32,7 +36,9 @@ func NewOption(option driver.Option, proxyswitch bool) *Option {
 }
 
 func NewClient(option *Option) *http.Client {
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: option.Timeout,
+	}
 	if option.Proxy != "" {
 		if proxyUrl, err := url.Parse(option.Proxy); err == nil {
 			client.Transport = &http.Transport{

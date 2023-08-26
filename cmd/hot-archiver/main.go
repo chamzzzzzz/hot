@@ -26,6 +26,7 @@ var (
 	board     = os.Getenv("HOT_ARCHIVER_BOARD")
 	mode      = os.Getenv("HOT_ARCHIVER_MODE")
 	once      = os.Getenv("HOT_ARCHIVER_ONCE")
+	timeout   = os.Getenv("HOT_ARCHIVER_TIMEOUT")
 	dn        = os.Getenv("HOT_ARCHIVER_DATABASE_DRIVER_NAME")
 	dsn       = os.Getenv("HOT_ARCHIVER_DATABASE_DATA_SOURCE_NAME")
 	archivers []hot.Archiver
@@ -60,6 +61,7 @@ func main() {
 	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
 	flag.StringVar(&mode, "mode", mode, "file(default), database, all")
 	flag.StringVar(&once, "once", once, "archive one time")
+	flag.StringVar(&timeout, "timeout", timeout, "crawl timeout")
 	flag.StringVar(&dn, "dn", dn, "database driver name")
 	flag.StringVar(&dsn, "dsn", dsn, "database data source name")
 	flag.StringVar(&addr, "addr", addr, "notification smtp addr")
@@ -100,9 +102,20 @@ func main() {
 		}
 	}
 
+	if timeout == "" {
+		timeout = "10s"
+	}
+	duration, err := time.ParseDuration(timeout)
+	if err != nil {
+		log.Printf("timeout format invalid, err=%s\n", err)
+		return
+	}
+
 	board, drivers := parse(board)
 	log.Printf("proxy=%s\n", proxy)
 	log.Printf("board=%s\n", board)
+	log.Printf("once=%s\n", once)
+	log.Printf("timeout=%s\n", timeout)
 	for _, driver := range drivers {
 		log.Printf("driver=%s\n", driver)
 	}
@@ -110,7 +123,7 @@ func main() {
 		log.Printf("archiver=%s\n", archiver.Name())
 	}
 	for _, driverName := range drivers {
-		c, err := crawler.Open(crawler.Option{DriverName: driverName, Proxy: proxy})
+		c, err := crawler.Open(crawler.Option{DriverName: driverName, Proxy: proxy, Timeout: duration})
 		if err != nil {
 			log.Printf("[%s] open crawler failed, err=%s\n", driverName, err)
 			return
