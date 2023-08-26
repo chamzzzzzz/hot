@@ -25,6 +25,7 @@ var (
 	proxy     = os.Getenv("HOT_ARCHIVER_PROXY")
 	board     = os.Getenv("HOT_ARCHIVER_BOARD")
 	mode      = os.Getenv("HOT_ARCHIVER_MODE")
+	once      = os.Getenv("HOT_ARCHIVER_ONCE")
 	dn        = os.Getenv("HOT_ARCHIVER_DATABASE_DRIVER_NAME")
 	dsn       = os.Getenv("HOT_ARCHIVER_DATABASE_DATA_SOURCE_NAME")
 	archivers []hot.Archiver
@@ -58,6 +59,7 @@ func main() {
 	flag.StringVar(&proxy, "proxy", proxy, "proxy url")
 	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
 	flag.StringVar(&mode, "mode", mode, "file(default), database, all")
+	flag.StringVar(&once, "once", once, "archive one time")
 	flag.StringVar(&dn, "dn", dn, "database driver name")
 	flag.StringVar(&dsn, "dsn", dsn, "database data source name")
 	flag.StringVar(&addr, "addr", addr, "notification smtp addr")
@@ -118,6 +120,9 @@ func main() {
 	}
 	for {
 		archive()
+		if once == "1" {
+			break
+		}
 		now := time.Now()
 		next := time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, 0, 0, 0, now.Location())
 		log.Printf("next archive at %s\n", next.Format("2006-01-02 15:04:05"))
@@ -222,10 +227,12 @@ func notification() {
 		return
 	}
 
-	now := time.Now()
-	if now.Hour() != 19 {
-		log.Printf("send notification skip. time is not 19:00\n")
-		return
+	if once == "" {
+		now := time.Now()
+		if now.Hour() != 19 {
+			log.Printf("send notification skip. time is not 19:00\n")
+			return
+		}
 	}
 
 	var failed = make(map[int]string)
