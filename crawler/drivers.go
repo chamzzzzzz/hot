@@ -64,7 +64,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kr36"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kuaishou"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kugou"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/kyodonews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/lanjinger"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/maoyan"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mydrivers"
