@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -26,6 +27,7 @@ var (
 	board     = os.Getenv("HOT_ARCHIVER_BOARD")
 	mode      = os.Getenv("HOT_ARCHIVER_MODE")
 	once      = os.Getenv("HOT_ARCHIVER_ONCE")
+	statfile  = os.Getenv("HOT_ARCHIVER_STATFILE")
 	timeout   = os.Getenv("HOT_ARCHIVER_TIMEOUT")
 	dn        = os.Getenv("HOT_ARCHIVER_DATABASE_DRIVER_NAME")
 	dsn       = os.Getenv("HOT_ARCHIVER_DATABASE_DATA_SOURCE_NAME")
@@ -61,6 +63,7 @@ func main() {
 	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
 	flag.StringVar(&mode, "mode", mode, "file(default), database, all")
 	flag.StringVar(&once, "once", once, "archive one time")
+	flag.StringVar(&statfile, "statfile", statfile, "stat file")
 	flag.StringVar(&timeout, "timeout", timeout, "crawl timeout")
 	flag.StringVar(&dn, "dn", dn, "database driver name")
 	flag.StringVar(&dsn, "dsn", dsn, "database data source name")
@@ -110,6 +113,11 @@ func main() {
 		log.Printf("timeout format invalid, err=%s\n", err)
 		return
 	}
+	if statfile != "" {
+		if err = loadStats(statfile, stats); err != nil {
+			log.Printf("load stats fail. file=%s, err='%v'\n", statfile, err)
+		}
+	}
 
 	board, drivers := parse(board)
 	log.Printf("proxy=%s\n", proxy)
@@ -122,6 +130,12 @@ func main() {
 	for _, archiver := range archivers {
 		log.Printf("archiver=%s\n", archiver.Name())
 	}
+	if statfile != "" {
+		log.Printf("statfile=%s\n", statfile)
+		for name, stat := range stats {
+			log.Printf("%s=%+v\n", name, stat)
+		}
+	}
 	for _, driverName := range drivers {
 		c, err := crawler.Open(crawler.Option{DriverName: driverName, Proxy: proxy, Timeout: duration})
 		if err != nil {
@@ -129,7 +143,9 @@ func main() {
 			return
 		}
 		crawlers = append(crawlers, c)
-		stats[driverName] = &stat{}
+		if _, ok := stats[driverName]; !ok {
+			stats[driverName] = &stat{}
+		}
 	}
 	for {
 		archive()
@@ -225,6 +241,11 @@ func archive() {
 	log.Printf("archive used %v\n", time.Since(t))
 	log.Printf("finish archive at %s\n", time.Now().Format("2006-01-02 15:04:05"))
 	notification()
+	if statfile != "" {
+		if err := saveStats(statfile, stats); err != nil {
+			log.Printf("save stats fail. file=%s, err='%v'\n", statfile, err)
+		}
+	}
 }
 
 func notification() {
@@ -240,7 +261,7 @@ func notification() {
 		return
 	}
 
-	if once == "" {
+	if once == "" || statfile != "" {
 		now := time.Now()
 		if now.Hour() != 19 {
 			log.Printf("send notification skip. time is not 19:00\n")
@@ -312,4 +333,23 @@ func notification() {
 		log.Printf("send notification fail. err='%s'\n", err)
 	}
 	log.Printf("send notification success.\n")
+}
+
+func loadStats(file string, stats map[string]*stat) error {
+	b, err := os.ReadFile(file)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	return json.Unmarshal(b, &stats)
+}
+
+func saveStats(file string, stats map[string]*stat) error {
+	b, err := json.MarshalIndent(stats, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(file, b, 0644)
 }
