@@ -46,7 +46,7 @@ var (
 	addr   = os.Getenv("HOT_ARCHIVER_SMTP_ADDR")
 	user   = os.Getenv("HOT_ARCHIVER_SMTP_USER")
 	pass   = os.Getenv("HOT_ARCHIVER_SMTP_PASS")
-	source = "From: {{.From}}\r\nTo: {{.To}}\r\nSubject: {{.Subject}}\r\n\r\n{{.Body}}"
+	source = "From: {{.From}}\r\nTo: {{.To}}\r\nSubject: {{.Subject}}\r\nContent-Type: {{.ContentType}}\r\n\r\n{{.Body}}"
 	tpl    *template.Template
 	stats  = make(map[string]*stat)
 )
@@ -250,10 +250,11 @@ func archive() {
 
 func notification() {
 	type Data struct {
-		From    string
-		To      string
-		Subject string
-		Body    string
+		From        string
+		To          string
+		Subject     string
+		ContentType string
+		Body        string
 	}
 
 	if addr == "" {
@@ -316,10 +317,11 @@ func notification() {
 	}
 
 	data := Data{
-		From:    fmt.Sprintf("%s <%s>", mime.BEncoding.Encode("UTF-8", "Monitor"), user),
-		To:      user,
-		Subject: mime.BEncoding.Encode("UTF-8", subject),
-		Body:    body,
+		From:        fmt.Sprintf("%s <%s>", mime.BEncoding.Encode("UTF-8", "Monitor"), user),
+		To:          user,
+		Subject:     mime.BEncoding.Encode("UTF-8", subject),
+		ContentType: "text/plain; charset=utf-8",
+		Body:        body,
 	}
 
 	var buf bytes.Buffer
