@@ -46,6 +46,7 @@ var (
 	addr   = os.Getenv("HOT_ARCHIVER_SMTP_ADDR")
 	user   = os.Getenv("HOT_ARCHIVER_SMTP_USER")
 	pass   = os.Getenv("HOT_ARCHIVER_SMTP_PASS")
+	to     = os.Getenv("HOT_ARCHIVER_SMTP_TO")
 	source = "From: {{.From}}\r\nTo: {{.To}}\r\nSubject: {{.Subject}}\r\nContent-Type: {{.ContentType}}\r\n\r\n{{.Body}}"
 	tpl    *template.Template
 	stats  = make(map[string]*stat)
@@ -318,7 +319,7 @@ func notification() {
 
 	data := Data{
 		From:        fmt.Sprintf("%s <%s>", mime.BEncoding.Encode("UTF-8", "Monitor"), user),
-		To:          user,
+		To:          to,
 		Subject:     mime.BEncoding.Encode("UTF-8", subject),
 		ContentType: "text/plain; charset=utf-8",
 		Body:        body,
@@ -331,7 +332,7 @@ func notification() {
 	}
 
 	auth := smtp.PlainAuth("", user, pass, host)
-	if err := smtp.SendMail(addr, auth, user, []string{user}, buf.Bytes()); err != nil {
+	if err := smtp.SendMail(addr, auth, user, strings.Split(to, ","), buf.Bytes()); err != nil {
 		log.Printf("send notification fail. err='%s'\n", err)
 	}
 	log.Printf("send notification success.\n")
