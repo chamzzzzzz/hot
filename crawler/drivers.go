@@ -28,6 +28,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/eastmoney"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/economist"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/eeo"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/foodtalks"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/fortunechina"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ft"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ftchinese"
