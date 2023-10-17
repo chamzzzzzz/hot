@@ -12,16 +12,16 @@ import (
 
 	"github.com/chamzzzzzz/hot/crawler/driver"
 	"github.com/chamzzzzzz/supersimplesoup"
-	"golang.org/x/text/encoding/simplifiedchinese"
-	"golang.org/x/text/transform"
+	"golang.org/x/net/html/charset"
 )
 
 type Option struct {
-	Proxy           string
-	Header          http.Header
-	ContentEncoding string
-	TrimPrefix      string
-	Timeout         time.Duration
+	Proxy                 string
+	Header                http.Header
+	ContentEncoding       string
+	DetectContentEncoding bool
+	TrimPrefix            string
+	Timeout               time.Duration
 }
 
 func NewOption(option driver.Option, proxyswitch bool) *Option {
@@ -54,7 +54,7 @@ func NewRequest(method, url string, body io.Reader, option *Option) (*http.Reque
 	if err != nil {
 		return nil, err
 	}
-	for key, _ := range option.Header {
+	for key := range option.Header {
 		req.Header.Del(key)
 		for _, value := range option.Header.Values(key) {
 			req.Header.Add(key, value)
@@ -79,12 +79,25 @@ func Request(method, url string, body io.Reader, unmarshalmethod string, unmarsh
 	}
 	defer res.Body.Close()
 
-	var reader io.Reader = res.Body
-	if option.ContentEncoding != "" {
-		if option.ContentEncoding == "gbk" {
-			reader = transform.NewReader(res.Body, simplifiedchinese.GBK.NewDecoder())
+	content, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	var reader io.Reader = bytes.NewReader(content)
+
+	if option.DetectContentEncoding {
+		reader, err = charset.NewReader(reader, res.Header.Get("Content-Type"))
+		if err != nil {
+			return err
+		}
+	} else if option.ContentEncoding != "" {
+		reader, err = charset.NewReaderLabel(option.ContentEncoding, reader)
+		if err != nil {
+			return err
 		}
 	}
+
 	data, err := io.ReadAll(reader)
 	if err != nil {
 		return err
@@ -105,9 +118,7 @@ func Unmarshal(unmarshalmethod string, data []byte, unmarshalbody any) error {
 		}
 	case "xml":
 		decoder := xml.NewDecoder(bytes.NewReader(data))
-		decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
-			return transform.NewReader(input, simplifiedchinese.GBK.NewDecoder()), nil
-		}
+		decoder.CharsetReader = charset.NewReaderLabel
 		if err := decoder.Decode(unmarshalbody); err != nil {
 			return err
 		}

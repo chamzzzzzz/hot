@@ -42,7 +42,7 @@ func (c *Crawler) Name() string {
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	dom := &httputil.DOM{}
 	option := httputil.NewOption(c.Option, ProxySwitch)
-	option.ContentEncoding = "gbk"
+	option.DetectContentEncoding = true
 	if err := httputil.Request("GET", URL, nil, "dom", dom, option); err != nil {
 		return nil, err
 	}
