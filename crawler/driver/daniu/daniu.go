@@ -13,7 +13,7 @@ import (
 const (
 	DriverName  = "daniu"
 	ProxySwitch = false
-	URL         = "https://www.4330.cn/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
+	URL         = "https://www.dndn.top/misc.php?mod=ranklist&type=thread&view=heats&orderby=today"
 )
 
 type Driver struct {
@@ -71,7 +71,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		}
 
 		title := strings.TrimSpace(a.Text())
-		url := "https://www.4330.cn/" + strings.TrimSpace(a.Href())
+		url := strings.TrimSpace(a.Href())
 		date, err := time.ParseInLocation("2006-1-2 15:04", strings.TrimSpace(em.Text()), time.Local)
 		if err != nil {
 			return nil, err
