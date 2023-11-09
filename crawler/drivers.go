@@ -101,7 +101,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tieba"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/timecom"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/toutiao"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/toutiaoio"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/v2ex"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/voacantonese"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/voachinese"
