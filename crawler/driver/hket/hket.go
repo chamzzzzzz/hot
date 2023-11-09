@@ -1,6 +1,7 @@
 package hket
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/chamzzzzzz/hot"
@@ -44,11 +45,12 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div, err := dom.Find("div", "class", "hot-news_rank")
-	if err != nil {
-		return nil, err
+	divs := dom.QueryAll("div", "class", "template-aside hket-row")
+	if len(divs) < 3 {
+		return nil, fmt.Errorf("divs not found")
 	}
-	for _, a := range div.QueryAll("a") {
+	div := divs[2]
+	for _, a := range div.QueryAll("a", "class", "ellipsis") {
 		title := strings.TrimSpace(a.Title())
 		url := strings.TrimSpace(a.Href())
 		board.Append(&hot.Hot{Title: title, URL: url})
