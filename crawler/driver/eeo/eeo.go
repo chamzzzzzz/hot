@@ -44,7 +44,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, div := range dom.QueryAll("div", "class", "xd-div") {
+	for _, div := range dom.QueryAll("div", "class", "box_R_item line news") {
 		for _, a := range div.QueryAll("a") {
 			title := strings.TrimSpace(a.Title())
 			url := strings.TrimSpace(a.Href())
