@@ -11,7 +11,7 @@ import (
 const (
 	DriverName  = "itbear"
 	ProxySwitch = false
-	URL         = "http://www.itbear.com.cn/"
+	URL         = "http://119.84.72.173"
 )
 
 type Driver struct {
@@ -39,7 +39,9 @@ func (c *Crawler) Name() string {
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
 	dom := &httputil.DOM{}
-	if err := httputil.Request("GET", URL, nil, "dom", dom, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
+	option := httputil.NewOption(c.Option, ProxySwitch)
+	option.Header.Set("Host", "www.itbear.com.cn")
+	if err := httputil.Request("GET", URL, nil, "dom", dom, option); err != nil {
 		return nil, err
 	}
 

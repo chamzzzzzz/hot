@@ -63,6 +63,9 @@ func NewRequest(method, url string, body io.Reader, option *Option) (*http.Reque
 	if req.Header.Get("User-Agent") == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36")
 	}
+	if req.Header.Get("Host") != "" {
+		req.Host = req.Header.Get("Host")
+	}
 	return req, nil
 }
 
