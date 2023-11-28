@@ -24,6 +24,7 @@ import (
 
 var (
 	proxy     = os.Getenv("HOT_ARCHIVER_PROXY")
+	proxies   = os.Getenv("HOT_ARCHIVER_PROXIES")
 	board     = os.Getenv("HOT_ARCHIVER_BOARD")
 	mode      = os.Getenv("HOT_ARCHIVER_MODE")
 	once      = os.Getenv("HOT_ARCHIVER_ONCE")
@@ -61,6 +62,7 @@ type stat struct {
 
 func main() {
 	flag.StringVar(&proxy, "proxy", proxy, "proxy url")
+	flag.StringVar(&proxies, "proxies", proxies, "proxy url for specified crawler")
 	flag.StringVar(&board, "board", board, "china-popular(default), china, global, all, or custom comma separated driver names")
 	flag.StringVar(&mode, "mode", mode, "file(default), database, all")
 	flag.StringVar(&once, "once", once, "archive one time")
@@ -119,6 +121,11 @@ func main() {
 			log.Printf("load stats fail. file=%s, err='%v'\n", statfile, err)
 		}
 	}
+	_proxies, err := parseProxies(proxies)
+	if err != nil {
+		log.Printf("parse crawler proxies fail. proxies=%s, err='%v'\n", proxies, err)
+		return
+	}
 
 	board, drivers := parse(board)
 	log.Printf("proxy=%s\n", proxy)
@@ -126,7 +133,11 @@ func main() {
 	log.Printf("once=%s\n", once)
 	log.Printf("timeout=%s\n", timeout)
 	for _, driver := range drivers {
-		log.Printf("driver=%s\n", driver)
+		var p string
+		if _proxies[driver] != "" {
+			p = fmt.Sprintf(" [%s]", _proxies[driver])
+		}
+		log.Printf("driver=%s%s\n", driver, p)
 	}
 	for _, archiver := range archivers {
 		log.Printf("archiver=%s\n", archiver.Name())
@@ -138,7 +149,12 @@ func main() {
 		}
 	}
 	for _, driverName := range drivers {
-		c, err := crawler.Open(crawler.Option{DriverName: driverName, Proxy: proxy, Timeout: duration})
+		var proxyswitch string
+		if _proxies[driverName] != "" {
+			proxy = _proxies[driverName]
+			proxyswitch = "1"
+		}
+		c, err := crawler.Open(crawler.Option{DriverName: driverName, ProxySwitch: proxyswitch, Proxy: proxy, Timeout: duration})
 		if err != nil {
 			log.Printf("[%s] open crawler failed, err=%s\n", driverName, err)
 			return
@@ -355,4 +371,25 @@ func saveStats(file string, stats map[string]*stat) error {
 		return err
 	}
 	return os.WriteFile(file, b, 0644)
+}
+
+func parseProxies(proxies string) (m map[string]string, err error) {
+	if proxies == "" {
+		return
+	}
+
+	var rawmap map[string]string
+	if err = json.Unmarshal([]byte(proxies), &rawmap); err != nil {
+		return
+	}
+
+	m = make(map[string]string)
+	for k, v := range rawmap {
+		for _, n := range strings.Split(k, ",") {
+			if n != "" {
+				m[n] = v
+			}
+		}
+	}
+	return
 }
