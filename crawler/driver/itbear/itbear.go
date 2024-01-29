@@ -11,7 +11,7 @@ import (
 const (
 	DriverName  = "itbear"
 	ProxySwitch = false
-	URL         = "http://119.84.72.173"
+	URL         = "http://www.itbear.com.cn/"
 )
 
 type Driver struct {
