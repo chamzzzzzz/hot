@@ -44,15 +44,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	div, err := dom.Find("div", "id", "wrowblock-17057_72")
-	if err != nil {
-		return nil, err
-	}
-	div, err = div.Find("div", "class", "row")
-	if err != nil {
-		return nil, err
-	}
-	for _, a := range div.QueryAll("a") {
+	for _, a := range dom.QueryAll("a", "class", "trends-wg__item") {
 		h4, err := a.Find("h4", "class", "trends-wg__item-txt")
 		if err != nil {
 			return nil, err
