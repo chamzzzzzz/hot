@@ -17,6 +17,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cninfo"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/cto51"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ctoutiao"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/cyzone"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/donews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/dongchedi"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/dongqiudi"
