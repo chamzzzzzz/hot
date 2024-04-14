@@ -109,6 +109,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/vrtuoluo"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/wallstreetcn"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/weibo"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/weread"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/wikipedia"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/wsj"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/xueqiu"
