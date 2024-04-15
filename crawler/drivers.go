@@ -86,6 +86,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/readhub"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/rfa"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/rt"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/sinanews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/so360"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/sogou"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/sohu"
