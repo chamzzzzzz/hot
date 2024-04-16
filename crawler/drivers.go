@@ -73,6 +73,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mysmth"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/nbd"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/netease"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/niaogebiji"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/nytimes"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/odaily"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/oschina"
