@@ -44,8 +44,12 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for i, div := range dom.QueryAll("div", "class", "side-panel") {
-		if i != 1 {
+	for _, div := range dom.QueryAll("div", "class", "side-panel") {
+		span := div.Query("div", "class", "panel-tit").Query("span")
+		if span == nil {
+			continue
+		}
+		if span.Text() != "热文榜" {
 			continue
 		}
 		for _, a := range div.QueryAll("div", "class", "item").Query("div", "class", "intro").Query("a") {
