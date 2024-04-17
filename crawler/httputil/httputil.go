@@ -21,6 +21,8 @@ type Option struct {
 	ContentEncoding       string
 	DetectContentEncoding bool
 	TrimPrefix            string
+	TrimSuffix            string
+	TrimSpace             bool
 	Timeout               time.Duration
 }
 
@@ -106,8 +108,16 @@ func Request(method, url string, body io.Reader, unmarshalmethod string, unmarsh
 		return err
 	}
 
+	if option.TrimSpace {
+		data = bytes.TrimSpace(data)
+	}
+
 	if option.TrimPrefix != "" {
 		data = bytes.TrimPrefix(data, []byte(option.TrimPrefix))
+	}
+
+	if option.TrimSuffix != "" {
+		data = bytes.TrimSuffix(data, []byte(option.TrimSuffix))
 	}
 
 	return Unmarshal(unmarshalmethod, data, unmarshalbody)
