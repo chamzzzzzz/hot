@@ -60,6 +60,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/iresearch"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/itbear"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ithome"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/itxinwen"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jiemian"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jin10"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jingji21"
