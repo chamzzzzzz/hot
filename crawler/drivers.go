@@ -54,6 +54,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/hupu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/huxiu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ifeng"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/ikanchai"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoq"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoqcom"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/iqiyi"
