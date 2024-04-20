@@ -75,6 +75,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/maoyan"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mydrivers"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/mysmth"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/myzaker"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/nbd"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/netease"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/niaogebiji"
