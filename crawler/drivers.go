@@ -37,6 +37,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/futu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/futunn"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/fxbaogao"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/g18183"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/game3dm"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/gameres"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/gamersky"
