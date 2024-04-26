@@ -113,6 +113,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/theverge"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tieba"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/timecom"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/tmtpost"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/toutiao"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/v2ex"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/voacantonese"
