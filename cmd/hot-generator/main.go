@@ -146,8 +146,8 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 	}
 
 	board := hot.NewBoard(c.Name())
-	for _, data := range body.Data {
-		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: strings.TrimSpace(data.URL)}
+	for _, data := range body.Channel.Item {
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: strings.TrimSpace(data.Link)})
 	}
 {{- else}}
 	dom := &httputil.DOM{}
@@ -181,16 +181,13 @@ func (body *body) NormalizedCode() int {
 {{- else if .XML}}
 
 type body struct {
-	Code    int    {{.Backtick}}xml:"code"{{.Backtick}}
-	Message string {{.Backtick}}xml:"message"{{.Backtick}}
-	Data    []struct {
-		Title string {{.Backtick}}xml:"title"{{.Backtick}}
-		URL   string {{.Backtick}}xml:"url"{{.Backtick}}
-	} {{.Backtick}}xml:"data"{{.Backtick}}
-}
-
-func (body *body) NormalizedCode() int {
-	return body.Code
+	Channel struct {
+		Item []struct {
+			Title   string {{.Backtick}}xml:"title"{{.Backtick}}
+			Link    string {{.Backtick}}xml:"link"{{.Backtick}}
+			PubDate string {{.Backtick}}xml:"pubDate"{{.Backtick}}
+		} {{.Backtick}}xml:"item"{{.Backtick}}
+	} {{.Backtick}}xml:"channel"{{.Backtick}}
 }
 {{- end}}
 {{end}}
