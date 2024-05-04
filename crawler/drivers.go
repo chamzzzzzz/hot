@@ -4,6 +4,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/acfun"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ali213"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/baidu"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/baike"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bilibili"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bjnews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/bkeconomy"
