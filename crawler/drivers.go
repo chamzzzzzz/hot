@@ -70,6 +70,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jingji21"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jisilu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/jqka10"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/kankanews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kdslife"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kr36"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/kuaishou"
