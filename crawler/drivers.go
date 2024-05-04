@@ -47,6 +47,7 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/gelonghui"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/github"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/globaltimes"
+	_ "github.com/chamzzzzzz/hot/crawler/driver/google"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/guancha"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/guozaoke"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/haokan"
