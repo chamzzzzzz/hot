@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"flag"
-	"log/slog"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -28,7 +28,7 @@ type Archive struct {
 type Service struct {
 	PathPrefix string
 	Manifest   string
-	*slog.Logger
+	*log.Logger
 	mux     http.ServeMux
 	render  *Render
 	archive *Archive
@@ -37,7 +37,7 @@ type Service struct {
 
 func (s *Service) Init(ctx context.Context) error {
 	if s.Logger == nil {
-		s.Logger = slog.Default()
+		s.Logger = log.Default()
 	}
 	archive, err := s.loadArchive(time.Now().Format(time.DateOnly), nil)
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *Service) Init(ctx context.Context) error {
 
 	s.render = &Render{}
 	s.mux.HandleFunc(s.PathPrefix+"/", s.HandleIndex)
-	s.Info("service init success.", "pathprefix", s.PathPrefix)
+	s.Printf("service init success. pathprefix=%s", s.PathPrefix)
 	return nil
 }
 
@@ -166,11 +166,11 @@ func main() {
 		PathPrefix: *pathprefix,
 	}
 	if err := service.Init(context.TODO()); err != nil {
-		slog.Error("init service fail.", "err", err)
+		log.Printf("init service fail. err='%s'", err)
 		os.Exit(1)
 	}
 	if err := http.ListenAndServe(*addr, service); err != nil {
-		slog.Error("listen and serve fail.", "err", err)
+		log.Printf("listen and serve fail. err='%s'", err)
 		os.Exit(1)
 	}
 }
