@@ -39,7 +39,7 @@ func (s *Service) Init(ctx context.Context) error {
 	if s.Logger == nil {
 		s.Logger = log.Default()
 	}
-	archive, err := s.loadArchive(time.Now().Format(time.DateOnly), nil)
+	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), nil)
 	if err != nil {
 		return err
 	}
