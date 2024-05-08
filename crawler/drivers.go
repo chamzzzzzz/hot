@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	_ "github.com/chamzzzzzz/hot/crawler/driver/a9vg"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/acfun"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ali213"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/baidu"
