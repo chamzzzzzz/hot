@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"flag"
 	"log"
 	"net/http"
@@ -15,19 +16,27 @@ import (
 )
 
 type Board struct {
-	Name        string
-	DisplayName string
+	Name        string   `json:"name"`
+	DisplayName string   `json:"displayname"`
+	Boards      []string `json:"boards"`
 	Hots        []string
 }
 
+type Boardset struct {
+	Boards map[string]*Board `json:"boards"`
+}
+
 type Archive struct {
+	Name   string
 	Date   string
 	Boards []*Board
 }
 
 type Service struct {
-	PathPrefix string
-	Manifest   string
+	PathPrefix  string
+	ArchivesDir string
+	Boardset    *Boardset
+	GitPull     bool
 	*log.Logger
 	mux     http.ServeMux
 	render  *Render
@@ -39,12 +48,14 @@ func (s *Service) Init(ctx context.Context) error {
 	if s.Logger == nil {
 		s.Logger = log.Default()
 	}
-	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), nil)
+	if err := s.initBoardset(); err != nil {
+		return err
+	}
+	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), "default")
 	if err != nil {
 		return err
 	}
 	s.setArchive(archive)
-
 	s.render = &Render{}
 	s.mux.HandleFunc(s.PathPrefix+"/", s.HandleIndex)
 	s.Printf("service init success. pathprefix=%s", s.PathPrefix)
@@ -68,28 +79,75 @@ func (s *Service) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func (s *Service) loadArchive(date string, names []string) (*Archive, error) {
-	if names == nil {
-		entries, err := os.ReadDir("archives")
+func (s *Service) initBoardset() error {
+	if s.Boardset != nil {
+		return nil
+	}
+	boardset := &Boardset{}
+	if b, err := os.ReadFile("website-board.json"); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+	} else {
+		if err := json.Unmarshal(b, &boardset); err != nil {
+			return err
+		}
+	}
+	if boardset.Boards["all"] == nil {
+		board := &Board{}
+		entries, err := os.ReadDir(s.ArchivesDir)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		for _, entry := range entries {
 			if entry.IsDir() {
-				names = append(names, entry.Name())
+				board.Boards = append(board.Boards, entry.Name())
 			}
 		}
+		if boardset.Boards == nil {
+			boardset.Boards = make(map[string]*Board)
+		}
+		boardset.Boards["all"] = board
+	}
+	for name, board := range boardset.Boards {
+		if board.Name == "" {
+			board.Name = name
+		}
+		if board.DisplayName == "" {
+			board.DisplayName = board.Name
+		}
+	}
+	s.Boardset = boardset
+	return nil
+}
+
+func (s *Service) getBoard(name string) *Board {
+	return s.Boardset.Boards[name]
+}
+
+func (s *Service) loadArchive(date string, boardname string) (*Archive, error) {
+	board := s.getBoard(boardname)
+	archivename := boardname
+	if board != nil {
+		archivename = board.DisplayName
 	}
 	archive := &Archive{
+		Name: archivename,
 		Date: date,
 	}
-	for _, name := range names {
-		file := filepath.Join("archives", name, date+".txt")
+	var boardnames []string
+	if board != nil && board.Boards != nil {
+		boardnames = board.Boards
+	} else {
+		boardnames = []string{boardname}
+	}
+	for _, name := range boardnames {
+		file := filepath.Join(s.ArchivesDir, name, date+".txt")
 		b, err := os.ReadFile(file)
 		if err != nil {
 			continue
 		}
-		board := &Board{
+		newboard := &Board{
 			Name:        name,
 			DisplayName: name,
 		}
@@ -97,9 +155,14 @@ func (s *Service) loadArchive(date string, names []string) (*Archive, error) {
 			if line == "" {
 				continue
 			}
-			board.Hots = append(board.Hots, line)
+			newboard.Hots = append(newboard.Hots, line)
 		}
-		archive.Boards = append(archive.Boards, board)
+		if board := s.getBoard(name); board != nil {
+			if board.DisplayName != "" {
+				newboard.DisplayName = board.DisplayName
+			}
+		}
+		archive.Boards = append(archive.Boards, newboard)
 	}
 	return archive, nil
 }
@@ -160,10 +223,14 @@ func (r *Render) Index(archvie *Archive) ([]byte, error) {
 
 func main() {
 	addr := flag.String("addr", ":8080", "address")
-	pathprefix := flag.String("pathprefix", "", "path prefix")
+	pathprefix := flag.String("pathprefix", "/hot", "path prefix")
+	archivesdir := flag.String("archivesdir", "archives", "archives dir")
+	gitpull := flag.Bool("gitpull", true, "git pull")
 	flag.Parse()
 	service := &Service{
-		PathPrefix: *pathprefix,
+		PathPrefix:  *pathprefix,
+		ArchivesDir: *archivesdir,
+		GitPull:     *gitpull,
 	}
 	if err := service.Init(context.TODO()); err != nil {
 		log.Printf("init service fail. err='%s'", err)
