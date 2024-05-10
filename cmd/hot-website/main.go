@@ -7,13 +7,11 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
 	"strings"
 	"sync"
 	"text/template"
@@ -42,33 +40,22 @@ type Service struct {
 	ArchivesDir string
 	GitPull     bool
 	*log.Logger
-	mux       http.ServeMux
-	render    *Render
-	boardset  *Boardset
-	archive   *Archive
-	mu        sync.RWMutex
-	blacklist map[string]bool
-	apikey    string
+	mux      http.ServeMux
+	render   *Render
+	boardset *Boardset
+	archive  *Archive
+	mu       sync.RWMutex
 }
 
 func (s *Service) Init(ctx context.Context) error {
 	if s.Logger == nil {
 		s.Logger = log.Default()
 	}
-	if s.apikey == "" {
-		r := rand.New(rand.NewSource(time.Now().UnixNano()))
-		s.apikey = fmt.Sprintf("%x", r.Int63())
-		s.Printf("random apikey [%s]", s.apikey)
-	}
-	if err := s.loadBlacklist(); err != nil {
-		return err
-	}
 	if err := s.updating(); err != nil {
 		return err
 	}
 	s.render = &Render{}
 	s.mux.HandleFunc(s.PathPrefix+"/", s.HandleIndex)
-	s.mux.HandleFunc(s.PathPrefix+"/admin/blacklist/", s.HandleAdminBlacklist)
 	s.Printf("service init success. pathprefix=%s", s.PathPrefix)
 	return nil
 }
@@ -83,66 +70,13 @@ func (s *Service) HandleIndex(w http.ResponseWriter, r *http.Request) {
 		boardname = "default"
 	}
 	ip := s.ip(r)
-	if s.inBlacklist(ip) {
-		s.Printf("[%s] forbidden access board [%s]", ip, boardname)
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
 	b, err := s.render.Index(s.getArchive())
 	if err != nil {
-		http.Error(w, "InternalServerError", http.StatusInternalServerError)
+		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
 	w.Write(b)
 	s.Printf("[%s] access board [%s]", ip, boardname)
-}
-
-func (s *Service) HandleAdminBlacklist(w http.ResponseWriter, r *http.Request) {
-	ip := s.ip(r)
-	if s.inBlacklist(ip) {
-		s.Printf("[%s] forbidden admin blacklist", ip)
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-	auth := r.Header.Get("Authorization")
-	fields := strings.Split(auth, " ")
-	if len(fields) != 2 {
-		s.Printf("[%s] unauthorized admin blacklist", ip)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-	if fields[1] != s.apikey {
-		s.Printf("[%s] unauthorized admin blacklist", ip)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-	if r.Method == http.MethodPost {
-		blackipstr := r.FormValue("ip")
-		if blackipstr == "" {
-			s.Printf("[%s] admin blacklist. no ip", ip)
-			http.Error(w, "invalid ip", http.StatusBadRequest)
-			return
-		}
-		blackip := net.ParseIP(blackipstr)
-		if blackip == nil {
-			s.Printf("[%s] admin blacklist. try add invalid ip [%s]", ip, blackipstr)
-			http.Error(w, "invalid ip", http.StatusBadRequest)
-			return
-		}
-		s.addBlacklist(blackip.String())
-		if err := s.saveBlacklist(); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Write([]byte("ok"))
-		s.Printf("[%s] admin blacklist. add ip [%s] to blacklist", ip, blackip)
-		return
-	}
-	if r.Method == http.MethodGet {
-		w.Write([]byte(strings.Join(s.getBlacklist(), "\n")))
-		s.Printf("[%s] admin blacklist. get blacklist", ip)
-		return
-	}
 }
 
 func (s *Service) loadBoardset() (*Boardset, error) {
@@ -321,63 +255,6 @@ func (s *Service) ip(r *http.Request) net.IP {
 	}
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
 	return net.ParseIP(host)
-}
-
-func (s *Service) loadBlacklist() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	b, err := os.ReadFile("website-blacklist.txt")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-	s.blacklist = make(map[string]bool)
-	for _, ip := range strings.Split(string(b), "\n") {
-		if ip != "" {
-			s.blacklist[ip] = true
-		}
-	}
-	return nil
-}
-
-func (s *Service) saveBlacklist() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	ips := make([]string, 0, len(s.blacklist))
-	for ip := range s.blacklist {
-		ips = append(ips, ip)
-	}
-	sort.Strings(ips)
-	return os.WriteFile("website-blacklist.txt", []byte(strings.Join(ips, "\n")), 0644)
-}
-
-func (s *Service) addBlacklist(ip string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.blacklist == nil {
-		s.blacklist = make(map[string]bool)
-	}
-	s.blacklist[ip] = true
-}
-
-func (s *Service) getBlacklist() []string {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	ips := make([]string, 0, len(s.blacklist))
-	for ip := range s.blacklist {
-		ips = append(ips, ip)
-	}
-	sort.Strings(ips)
-	return ips
-}
-
-func (s *Service) inBlacklist(ip net.IP) bool {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	_, ok := s.blacklist[ip.String()]
-	return ok
 }
 
 type Render struct {
