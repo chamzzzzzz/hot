@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -35,34 +37,25 @@ type Archive struct {
 type Service struct {
 	PathPrefix  string
 	ArchivesDir string
-	Boardset    *Boardset
 	GitPull     bool
 	*log.Logger
-	mux     http.ServeMux
-	render  *Render
-	archive *Archive
-	mu      sync.RWMutex
+	mux      http.ServeMux
+	render   *Render
+	boardset *Boardset
+	archive  *Archive
+	mu       sync.RWMutex
 }
 
 func (s *Service) Init(ctx context.Context) error {
 	if s.Logger == nil {
 		s.Logger = log.Default()
 	}
-	if err := s.initBoardset(); err != nil {
+	if err := s.updating(); err != nil {
 		return err
 	}
-	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), "default")
-	if err != nil {
-		return err
-	}
-	s.setArchive(archive)
 	s.render = &Render{}
 	s.mux.HandleFunc(s.PathPrefix+"/", s.HandleIndex)
 	s.Printf("service init success. pathprefix=%s", s.PathPrefix)
-	return nil
-}
-
-func (s *Service) Uninit(ctx context.Context) error {
 	return nil
 }
 
@@ -79,25 +72,22 @@ func (s *Service) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func (s *Service) initBoardset() error {
-	if s.Boardset != nil {
-		return nil
-	}
+func (s *Service) loadBoardset() (*Boardset, error) {
 	boardset := &Boardset{}
 	if b, err := os.ReadFile("website-board.json"); err != nil {
 		if !os.IsNotExist(err) {
-			return err
+			return nil, err
 		}
 	} else {
 		if err := json.Unmarshal(b, &boardset); err != nil {
-			return err
+			return nil, err
 		}
 	}
 	if boardset.Boards["all"] == nil {
 		board := &Board{}
 		entries, err := os.ReadDir(s.ArchivesDir)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		for _, entry := range entries {
 			if entry.IsDir() {
@@ -117,12 +107,27 @@ func (s *Service) initBoardset() error {
 			board.DisplayName = board.Name
 		}
 	}
-	s.Boardset = boardset
-	return nil
+	return boardset, nil
+}
+
+func (s *Service) setBoardset(boardset *Boardset) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.boardset = boardset
+}
+
+func (s *Service) getBoardset() *Boardset {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.boardset
 }
 
 func (s *Service) getBoard(name string) *Board {
-	return s.Boardset.Boards[name]
+	boardset := s.getBoardset()
+	if boardset == nil {
+		return nil
+	}
+	return boardset.Boards[name]
 }
 
 func (s *Service) loadArchive(date string, boardname string) (*Archive, error) {
@@ -177,6 +182,55 @@ func (s *Service) getArchive() *Archive {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.archive
+}
+
+func (s *Service) gitPull() ([]byte, error) {
+	if !s.GitPull {
+		return nil, nil
+	}
+	return exec.Command("git", "pull").CombinedOutput()
+}
+
+func (s *Service) update(pull bool) error {
+	if pull {
+		if output, err := s.gitPull(); err != nil {
+			out := string(output)
+			out = strings.ReplaceAll(out, "\n", "\\n")
+			out = strings.ReplaceAll(out, "\r", "\\r")
+			return fmt.Errorf("gitpull out:'%s' err:%w", out, err)
+		}
+	}
+	boardset, err := s.loadBoardset()
+	if err != nil {
+		return err
+	}
+	s.setBoardset(boardset)
+	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), "default")
+	if err != nil {
+		return err
+	}
+	s.setArchive(archive)
+	return nil
+}
+
+func (s *Service) updating() error {
+	if err := s.update(false); err != nil {
+		return err
+	}
+	go func() {
+		for {
+			now := time.Now()
+			next := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), 30, 0, 0, now.Location()).Add(time.Hour)
+			s.Printf("next update at %s", next)
+			time.Sleep(next.Sub(now))
+			if err := s.update(true); err != nil {
+				s.Printf("update fail. err='%s'", err)
+			} else {
+				s.Printf("update success.")
+			}
+		}
+	}()
+	return nil
 }
 
 type Render struct {
