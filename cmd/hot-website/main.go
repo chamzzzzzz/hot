@@ -45,6 +45,9 @@ type Service struct {
 	boardset *Boardset
 	archive  *Archive
 	mu       sync.RWMutex
+	pv       int
+	uv       map[string]int
+	resetuv  time.Time
 }
 
 func (s *Service) Init(ctx context.Context) error {
@@ -64,19 +67,54 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
 
+func (s *Service) addUV(ip net.IP) int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.resetuv.IsZero() || s.resetuv.Format("2006-01-02") != time.Now().Format("2006-01-02") {
+		if !s.resetuv.IsZero() {
+			s.Printf("date[%s] pv[%d] uv[%d]", s.resetuv.Format("2006-01-02"), s.pv, len(s.uv))
+		}
+		s.resetuv = time.Now()
+		s.uv = make(map[string]int)
+		s.pv = 0
+	}
+	s.pv++
+	s.uv[ip.String()]++
+	return s.uv[ip.String()]
+}
+
 func (s *Service) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	boardname := r.URL.Query().Get("board")
 	if boardname == "" {
 		boardname = "default"
 	}
 	ip := s.ip(r)
-	b, err := s.render.Index(s.getArchive())
-	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
+	uv := s.addUV(ip)
+	maxuv := 10
+	if uv > maxuv {
+		s.Printf("[%s] uv[%d] limit to access board[%s]", ip, uv, boardname)
+		s.limit(w, maxuv)
 		return
 	}
+
+	s.index(w, s.getArchive())
+	s.Printf("[%s] uv[%d] access board[%s]", ip, uv, boardname)
+}
+
+func (s *Service) index(w http.ResponseWriter, archive *Archive) {
+	b, err := s.render.Index(archive)
+	if err != nil {
+		panic(err)
+	}
 	w.Write(b)
-	s.Printf("[%s] access board [%s]", ip, boardname)
+}
+
+func (s *Service) limit(w http.ResponseWriter, maxuv int) {
+	b, err := s.render.Limit(maxuv)
+	if err != nil {
+		panic(err)
+	}
+	w.Write(b)
 }
 
 func (s *Service) loadBoardset() (*Boardset, error) {
@@ -261,8 +299,7 @@ type Render struct {
 }
 
 func (r *Render) Index(archvie *Archive) ([]byte, error) {
-	source := `
-<!DOCTYPE html>
+	source := `<!DOCTYPE html>
 <html>
 	<head>
 		<title>热门榜单</title>
@@ -285,7 +322,7 @@ func (r *Render) Index(archvie *Archive) ([]byte, error) {
 			{{- end}}
 		</main>
 		<footer>
-			<p>Hot will eventually cool...</p>
+			<p>HOT WILL EVENTUALLY COOL......</p>
 		</footer>
 	</body>
 </html>
@@ -299,9 +336,54 @@ func (r *Render) Index(archvie *Archive) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+func (r *Render) Limit(maxuv int) ([]byte, error) {
+	source := `<!DOCTYPE html>
+<html>
+	<head>
+		<title>热门榜单</title>
+		<style>
+			body {
+				background-color: white;
+				color: black;
+				font-family: arial, sans-serif;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				flex-direction: column;
+			}
+			h1 {
+				font-size: 24px;
+				margin: 0;
+				padding: 0;
+			}
+			h2 {
+				font-size: 12px;
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>每日{{.}}次访问额度已用完^_^</h1>
+		<h2>HOT WILL EVENTUALLY COOL......</h2>
+	</body>
+</html>
+`
+	tpl := template.Must(template.New("index").Parse(source))
+	buf := &bytes.Buffer{}
+	err := tpl.Execute(buf, maxuv)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 func main() {
 	addr := flag.String("addr", ":8080", "address")
-	pathprefix := flag.String("pathprefix", "/hot", "path prefix")
+	pathprefix := flag.String("pathprefix", "", "path prefix")
 	archivesdir := flag.String("archivesdir", "archives", "archives dir")
 	gitpull := flag.Bool("gitpull", true, "git pull")
 	flag.Parse()
