@@ -30,9 +30,10 @@ type Boardset struct {
 }
 
 type Archive struct {
-	Name   string
-	Date   string
-	Boards []*Board
+	Name        string
+	DisplayName string
+	Date        string
+	Boards      []*Board
 }
 
 type Service struct {
@@ -96,8 +97,7 @@ func (s *Service) HandleIndex(w http.ResponseWriter, r *http.Request) {
 		s.limit(w, maxuv)
 		return
 	}
-
-	s.index(w, s.getArchive())
+	s.index(w, s.newArchive(boardname))
 	s.Printf("[%s] uv[%d] access board[%s]", ip, uv, boardname)
 }
 
@@ -176,14 +176,16 @@ func (s *Service) getBoard(name string) *Board {
 }
 
 func (s *Service) loadArchive(date string, boardname string) (*Archive, error) {
-	board := s.getBoard(boardname)
-	archivename := boardname
-	if board != nil {
-		archivename = board.DisplayName
-	}
 	archive := &Archive{
-		Name: archivename,
-		Date: date,
+		Name:        boardname,
+		DisplayName: boardname,
+		Date:        date,
+	}
+	board := s.getBoard(boardname)
+	if board != nil {
+		if board.DisplayName != "" {
+			archive.DisplayName = board.DisplayName
+		}
 	}
 	var boardnames []string
 	if board != nil && board.Boards != nil {
@@ -229,6 +231,36 @@ func (s *Service) getArchive() *Archive {
 	return s.archive
 }
 
+func (s *Service) newArchive(boardname string) *Archive {
+	archive := s.getArchive()
+	newarchive := &Archive{
+		Name:        boardname,
+		DisplayName: boardname,
+		Date:        archive.Date,
+	}
+	board := s.getBoard(boardname)
+	if board != nil {
+		if board.DisplayName != "" {
+			newarchive.DisplayName = board.DisplayName
+		}
+	}
+	var boardnames []string
+	if board != nil && board.Boards != nil {
+		boardnames = board.Boards
+	} else {
+		boardnames = []string{boardname}
+	}
+	for _, name := range boardnames {
+		for _, b := range archive.Boards {
+			if b.Name == name {
+				newarchive.Boards = append(newarchive.Boards, b)
+				break
+			}
+		}
+	}
+	return newarchive
+}
+
 func (s *Service) gitPull() ([]byte, error) {
 	if !s.GitPull {
 		return nil, nil
@@ -250,7 +282,7 @@ func (s *Service) update(pull bool) error {
 		return err
 	}
 	s.setBoardset(boardset)
-	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), "default")
+	archive, err := s.loadArchive(time.Now().Format("2006-01-02"), "all")
 	if err != nil {
 		return err
 	}
