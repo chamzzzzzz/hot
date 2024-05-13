@@ -203,11 +203,11 @@ func (s *Service) loadArchive(date string, boardname string) (*Archive, error) {
 			Name:        name,
 			DisplayName: name,
 		}
-		for _, line := range strings.Split(string(b), "\n") {
+		for _, line := range strings.Split(string(b), "\r\n") {
 			if line == "" {
 				continue
 			}
-			newboard.Hots = append(newboard.Hots, line)
+			newboard.Hots = append(newboard.Hots, strings.TrimSpace(line))
 		}
 		if board := s.getBoard(name); board != nil {
 			if board.DisplayName != "" {
@@ -253,7 +253,15 @@ func (s *Service) newArchive(boardname string) *Archive {
 	for _, name := range boardnames {
 		for _, b := range archive.Boards {
 			if b.Name == name {
-				newarchive.Boards = append(newarchive.Boards, b)
+				newboard := b
+				if len(b.Hots) > 10 {
+					newboard = &Board{
+						Name:        b.Name,
+						DisplayName: b.DisplayName,
+						Hots:        b.Hots[len(b.Hots)-10:],
+					}
+				}
+				newarchive.Boards = append(newarchive.Boards, newboard)
 				break
 			}
 		}
@@ -335,13 +343,19 @@ func (r *Render) Index(archvie *Archive) ([]byte, error) {
 <html>
 	<head>
 		<title>热门榜单</title>
+		<style>
+			main {
+				max-width: 55rem;
+				margin: 0 auto 1.5rem;
+				padding: 0 1.5rem;
+				font-family: arial, sans-serif;
+			}
+		</style>
 	</head>
 	<body>
-		<header>
+		<main>
 			<h1>热门榜单</h1>
 			<p>{{.Date}}</p>
-		</header>
-		<main>
 			{{- range $id, $board := .Boards}}
 			<section>
 				<h2>{{$board.DisplayName}}</h2>
@@ -353,9 +367,6 @@ func (r *Render) Index(archvie *Archive) ([]byte, error) {
 			</section>
 			{{- end}}
 		</main>
-		<footer>
-			<p>HOT WILL EVENTUALLY COOL......</p>
-		</footer>
 	</body>
 </html>
 `
