@@ -54,7 +54,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/guozaoke"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/haokan"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/haoyou3839"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/hellogithub"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/hexun"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/hibor"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/hket"
