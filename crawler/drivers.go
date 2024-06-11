@@ -111,7 +111,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/takungpao"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thecover"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thehackernews"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/thehill"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thepaper"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/theverge"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/tieba"
