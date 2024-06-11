@@ -64,7 +64,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoq"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/infoqcom"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/iqiyi"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/iresearch"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/itbear"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/ithome"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/itxinwen"
