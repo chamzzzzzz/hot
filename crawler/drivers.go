@@ -109,7 +109,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/sspai"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/stcn"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/takungpao"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/techweb"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thecover"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thehackernews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/thehill"
