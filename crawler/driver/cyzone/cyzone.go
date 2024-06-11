@@ -49,7 +49,7 @@ func (c *Crawler) Crawl() (*hot.Board, error) {
 		if span == nil {
 			continue
 		}
-		if span.Text() != "热文榜" {
+		if span.Text() != "热门文章" {
 			continue
 		}
 		for _, a := range div.QueryAll("div", "class", "item").Query("div", "class", "intro").Query("a") {
