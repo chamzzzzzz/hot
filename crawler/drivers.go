@@ -126,7 +126,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/weibo"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/weread"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/wikipedia"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/wsj"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/xueqiu"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/yesky"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/yicai"
