@@ -88,7 +88,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/qqnews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/qqvideo"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/readhub"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/rfa"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/rt"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/sinafin"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/sinanews"
