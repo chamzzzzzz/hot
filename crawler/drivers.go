@@ -81,7 +81,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/nytimes"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/odaily"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/oschina"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/panews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/pcauto"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/pconline"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/pedaily"
