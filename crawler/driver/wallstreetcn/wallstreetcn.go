@@ -11,7 +11,7 @@ import (
 const (
 	DriverName  = "wallstreetcn"
 	ProxySwitch = false
-	URL         = "https://wallstreetcn.com/"
+	URL         = "https://api-one-wscn.awtmt.com/apiv1/content/articles/hot?period=all"
 )
 
 type Driver struct {
@@ -38,20 +38,33 @@ func (c *Crawler) Name() string {
 }
 
 func (c *Crawler) Crawl() (*hot.Board, error) {
-	dom := &httputil.DOM{}
-	if err := httputil.Request("GET", URL, nil, "dom", dom, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
+	body := &body{}
+	if err := httputil.Request("GET", URL, nil, "json", body, httputil.NewOption(c.Option, ProxySwitch)); err != nil {
 		return nil, err
 	}
 
 	board := hot.NewBoard(c.Name())
-	div, err := dom.Find("div", "class", "hot-articles")
-	if err != nil {
-		return nil, err
-	}
-	for _, a := range div.QueryAll("a") {
-		title := strings.TrimSpace(a.Text())
-		url := strings.TrimSpace(a.Href())
-		board.Append(&hot.Hot{Title: title, URL: url})
+	for _, data := range body.Data.DayItems {
+		board.Append(&hot.Hot{Title: strings.TrimSpace(data.Title), URL: strings.TrimSpace(data.URI)})
 	}
 	return board, nil
+}
+
+type body struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    struct {
+		DayItems []struct {
+			Title string `json:"title"`
+			URI   string `json:"uri"`
+		} `json:"day_items"`
+	} `json:"data"`
+}
+
+func (body *body) NormalizedCode() int {
+	if body.Code == 20000 {
+		return 0
+	} else {
+		return 1
+	}
 }
