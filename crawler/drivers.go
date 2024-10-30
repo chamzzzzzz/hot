@@ -24,7 +24,6 @@ import (
 	_ "github.com/chamzzzzzz/hot/crawler/driver/donews"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/dongchedi"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/dongqiudi"
-	_ "github.com/chamzzzzzz/hot/crawler/driver/douban"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/douxie"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/douyin"
 	_ "github.com/chamzzzzzz/hot/crawler/driver/dxy"
