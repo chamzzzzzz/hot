@@ -35,9 +35,9 @@ var (
 	archivers []hot.Archiver
 	crawlers  []*crawler.Crawler
 	boards    = map[string][]string{
-		"china-popular": {"baidu", "weibo", "toutiao", "douyin", "kuaishou", "bilibili"},
+		"china-popular": {"baidu", "weibo", "douyin", "bilibili"},
 		"global": {
-			"cnbeta", "economist", "ft", "ftchinese", "github", "hket", "kyodonews", "nytimes",
+			"cnbeta", "economist", "ft", "ftchinese", "hket", "kyodonews", "nytimes",
 			"rfa", "thehill", "timecom", "v2ex", "voacantonese", "voachinese", "wikipedia", "wsj",
 		},
 	}
